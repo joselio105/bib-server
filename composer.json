@@ -1,0 +1,19 @@
+{
+    "name": "plugse/bib-server",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^11.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "plugse\\server\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "José Hélio Veríssimoo Jr",
+            "email": "jose.helio@gmail.com"
+        }
+    ],
+    "require": {}
+}
