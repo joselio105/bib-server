@@ -2,7 +2,6 @@
 
 namespace plugse\server\core\infra\http\routes;
 
-use plugse\server\core\infra\helpers\File;
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\errors\RouteNotFoundError;
 use plugse\server\core\errors\RouteInconcistenceError;
@@ -10,18 +9,21 @@ use plugse\server\core\errors\RouteInconcistenceError;
 class Router
 {
     const PATTERN_ALPHA = '[0-9a-z\-]+';
-    const PATTERN_ATTR = '\:([0-9a-z\-]+)';
+    const PATTERN_ATTR = '\:[0-9a-z\-]+';
     private array $routes;
     private Route $validRoute;
     private string $requestUri;
+    private string $requestHttpMethod;
+    private array $requestBody;
 
-    public function __construct(array $routes)
+    public function __construct(string $requestUri, string $requestHttpMethod, array $routes, array $requestBody=null)
     {
-        $this->routes = $routes;
-
-        $this->requestUri = strtolower(trim($_SERVER['REQUEST_URI'], '/'));
+        $this->requestUri = $requestUri;
+        $this->requestHttpMethod = strtoupper($requestHttpMethod);
+        $this->setRoutes($routes);
+        $this->requestBody = $requestBody ?? $_POST;
     }
-
+    
     public function getRequest()
     {
         $this->setValidRoute();
@@ -29,15 +31,28 @@ class Router
         $request->route = $this->validRoute;
         $request->uri = $this->requestUri;
         $request->params = $this->getParams();
-        $request->body = $_POST;
-
+        $request->body = $this->requestBody;
+        
         return $request;
+    }
+    
+    private function setRoutes(array $routes)
+    {
+        $this->routes = [];
+
+        foreach($routes as $route){
+            if(get_class($route)===GroupeRoutes::class){
+                array_push($this->routes, ...$route->get());
+            }else{
+                array_push($this->routes, $route);
+            }
+        }        
     }
 
     private function setValidRoute(): void
     {
         $validRoutes = array_filter($this->routes, function($route){
-            return $route->match($this->requestUri);
+            return $route->match($this->requestUri, $this->requestHttpMethod);
         });
         
         if(count($validRoutes)>1){

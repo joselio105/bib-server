@@ -12,7 +12,13 @@ class Bootstrap
     private Router $router;
 
     public function __construct() {
-        $this->router = new Router(File::getFileData('src/infra/http/routes/api.php'));
+        $this->router = new Router(
+            strtolower(trim($_SERVER['REQUEST_URI'], '/')), 
+            strtoupper($_SERVER['REQUEST_METHOD']),
+            File::getFileData('src/infra/http/routes/api.php')
+        );
+        // TODO: Configuração de tempo
+        // TODO: CORs
     }
 
     public function run()
@@ -42,8 +48,8 @@ class Bootstrap
 
     private function runMidlewares(Request $request)
     {
-        foreach($request->route->midwares as $midleware){
-            File::runClass($midleware);
+        foreach($request->route->middwares as $middleware){
+            File::runClass($middleware);
         }
     }
 }
