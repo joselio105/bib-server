@@ -6,7 +6,8 @@
     },
     "autoload": {
         "psr-4": {
-            "plugse\\server\\": "src/"
+            "plugse\\server\\": "src/",
+            "plugse\\test\\": "tests/"
         }
     },
     "authors": [
@@ -15,5 +16,10 @@
             "email": "jose.helio@gmail.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "scripts": {
+        "post-install-cmd": [
+            "./vendor/bin/phpunit tests -v --testdox"
+        ]
+    }
 }
