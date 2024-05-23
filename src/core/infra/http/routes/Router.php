@@ -12,28 +12,42 @@ class Router
     const PATTERN_ATTR = '\:[0-9a-z\-]+';
     private array $routes;
     private Route $validRoute;
-    private string $requestUri;
-    private string $requestHttpMethod;
-    private array $requestBody;
+    private Request $request;
 
-    public function __construct(string $requestUri, string $requestHttpMethod, array $routes, array $requestBody=null)
+    public function __construct(Request $request, array $routes)
     {
-        $this->requestUri = $requestUri;
-        $this->requestHttpMethod = strtoupper($requestHttpMethod);
+        $this->request = $request;
         $this->setRoutes($routes);
-        $this->requestBody = $requestBody ?? $_POST;
     }
-    
-    public function getRequest()
+
+    public function getRoute(): Route
     {
-        $this->setValidRoute();
-        $request = new Request;
-        $request->route = $this->validRoute;
-        $request->uri = $this->requestUri;
-        $request->params = $this->getParams();
-        $request->body = $this->requestBody;
+        $validRoutes = array_filter($this->routes, function($route){
+            return $route->match($this->request);
+        });
         
-        return $request;
+        if(count($validRoutes)>1){
+            throw new RouteInconcistenceError;
+        }
+
+        if(count($validRoutes)===0){
+            throw new RouteNotFoundError;
+        }
+        
+        $keys = array_keys($validRoutes);
+        $validKey = $keys[0];
+
+        return $validRoutes[$validKey];
+    }
+
+    public function getParams(Route $route): array
+    {
+        $request = explode('/', $this->request->uri);
+        $route = explode('/', $route->endpoint);
+        $keys = str_replace(':', '', array_diff($route, $request));
+        $values = array_diff($request, $route);
+        
+        return array_combine($keys, $values);
     }
     
     private function setRoutes(array $routes)
@@ -47,35 +61,6 @@ class Router
                 array_push($this->routes, $route);
             }
         }        
-    }
-
-    private function setValidRoute(): void
-    {
-        $validRoutes = array_filter($this->routes, function($route){
-            return $route->match($this->requestUri, $this->requestHttpMethod);
-        });
-        
-        if(count($validRoutes)>1){
-            throw new RouteInconcistenceError;
-        }
-
-        if(count($validRoutes)===0){
-            throw new RouteNotFoundError;
-        }
-        
-        $keys = array_keys($validRoutes);
-        $validKey = $keys[0];
-        $this->validRoute = $validRoutes[$validKey];
-    }
-
-    private function getParams(): array
-    {
-        $request = explode('/', $this->requestUri);
-        $route = explode('/', $this->validRoute->endpoint);
-        $keys = str_replace(':', '', array_diff($route, $request));
-        $values = array_diff($request, $route);
-        
-        return array_combine($keys, $values);
     }
 }
 

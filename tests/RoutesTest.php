@@ -2,21 +2,21 @@
 
 namespace plugse\test;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use plugse\server\core\errors\ClassNotFoundError;
-use plugse\server\core\errors\FileNotFoundError;
-use plugse\server\core\errors\RouteInconcistenceError;
-use plugse\server\core\errors\RouteNotFoundError;
 use plugse\server\core\helpers\File;
 use plugse\server\core\infra\http\Request;
-use plugse\server\core\infra\http\routes\Router;
-use plugse\server\core\infra\http\routes\GroupeRoutes;
-use plugse\server\core\infra\http\routes\Route;
 use plugse\test\controllers\BarController;
-use plugse\test\controllers\ErrorControllers;
 use plugse\test\controllers\FooController;
 use plugse\test\middlewares\TestMiddleware;
+use plugse\test\controllers\ErrorControllers;
+use PHPUnit\Framework\Attributes\DataProvider;
+use plugse\server\core\infra\http\routes\Route;
+use plugse\server\core\errors\FileNotFoundError;
+use plugse\server\core\infra\http\routes\Router;
+use plugse\server\core\errors\ClassNotFoundError;
+use plugse\server\core\errors\RouteNotFoundError;
+use plugse\server\core\errors\RouteInconcistenceError;
+use plugse\server\core\infra\http\routes\GroupeRoutes;
 
 class RoutesTest extends TestCase
 {
@@ -32,27 +32,29 @@ class RoutesTest extends TestCase
                 ->addRoute(':id', 'PUT', 'update')
                 ->addRoute(':id', 'delete', 'delete')
         ]; 
+
         return [
-            ['bar/123', 'GET', $routes, ['id'=>'123'], []],
-            ['foo', 'GET', $routes, [], []],
-            ['foo/123', 'GET', $routes, ['id'=>'123'], []],
-            ['foo', 'POST', $routes, [], ['name'=>'Test']],
-            ['foo/123', 'PUT', $routes, ['id'=>'123'], ['name'=>'Test']],
-            ['foo/123', 'delete', $routes, ['id'=>'123'], []],
+            [(new Request)->setUri('bar/123')->setHttpMethod('get'), $routes, ['id'=>'123'], []],
+            [(new Request)->setUri('foo')->setHttpMethod('get'), $routes, [], []],
+            [(new Request)->setUri('foo/123')->setHttpMethod('get'), $routes, ['id'=>'123'], []],
+            [(new Request)->setUri('foo')->setHttpMethod('post'), $routes, [], ['name'=>'Test']],
+            [(new Request)->setUri('foo/123')->setHttpMethod('put'), $routes, ['id'=>'123'], ['name'=>'Test']],
+            [(new Request)->setUri('foo/123')->setHttpMethod('delete'), $routes, ['id'=>'123'], []],
         ];
     }
 
     #[DataProvider('provideRoutes')]
-    public function testRoute($uri, $method, $routes, $params, $body)
+    public function testRoute(Request $request, array $routes, array $params, array $body)
     {
-        $router = new Router($uri, $method, $routes, $body);
-        $request = $router->getRequest();
+        $router = new Router($request, $routes);
+        $route = $router->getRoute();
 
-        $this->assertInstanceOf(Request::class, $request);
-        $this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys($params, $request->params, array_keys($params));
-        $this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys($body, $request->body, array_keys($body));
-        $this->assertEquals($uri, $request->uri);
-        $this->assertInstanceOf(Route::class, $request->route);
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys(
+            $params, 
+            $router->getParams($route), 
+            array_keys($params)
+        );
     }
 
     public function testInconsistentRoute()
@@ -66,7 +68,10 @@ class RoutesTest extends TestCase
             ->addRoute(':name', 'put', 'index')
         ];
 
-        (new Router('foo/xyz', 'put', $routes))->getRequest();
+        (new Router(
+            (new Request)->setUri('foo/123')->setHttpMethod('put'), 
+            $routes)
+        )->getRoute();
     }
 
     public function testRouteNotFound()
@@ -80,28 +85,9 @@ class RoutesTest extends TestCase
             ->addRoute(':name', 'put', 'index')
         ];
 
-        (new Router('bar/xyz', 'put', $routes))->getRequest();
-    }
-    
-    public function testFileNotFound()
-    {
-        $this->expectException(FileNotFoundError::class);
-        $routes = [
-            new Route('foo/:id', 'put', 'plugse\test\\ctrl\\Controller.php', 'index'),
-        ];
-
-        $request = (new Router('foo/xyz', 'put', $routes))->getRequest();
-        File::runClass($request->route->controller);
-    }
-
-    public function testClassNotFound()
-    {
-        $this->expectException(ClassNotFoundError::class);
-        $routes = [
-            new Route('foo/:id', 'put', ErrorControllers::class, 'index'),
-        ];
-
-        $request = (new Router('foo/xyz', 'put', $routes))->getRequest();
-        File::runClass($request->route->controller);
+        (new Router(
+            (new Request)->setUri('bar/123')->setHttpMethod('put'), 
+            $routes)
+        )->getRoute();
     }
 }

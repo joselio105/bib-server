@@ -6,15 +6,19 @@ use plugse\server\core\helpers\File;
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\infra\http\routes\Router;
 use plugse\server\core\errors\ActionNotFoundError;
+use plugse\server\core\infra\http\routes\Route;
 
 class Bootstrap
 {
     private Router $router;
+    private Request $request;
+    private Route $route;
 
     public function __construct() {
+        $this->request = new Request;
+
         $this->router = new Router(
-            strtolower(trim($_SERVER['REQUEST_URI'], '/')), 
-            strtoupper($_SERVER['REQUEST_METHOD']),
+            $this->request,
             File::getFileData('src/infra/http/routes/api.php')
         );
         // TODO: Configuração de tempo
@@ -24,9 +28,10 @@ class Bootstrap
     public function run()
     {
         try {
-            $request = $this->router->getRequest();
-            $this->runMidlewares($request);
-            $response = $this->runAction($request);
+            $this->route = $this->router->getRoute();
+            $this->request->setParams($this->router->getParams($this->route));
+            $this->runMidlewares();
+            $response = $this->runAction();
             
             echo json_encode($response->get());
         } catch (\Throwable $th) {
@@ -35,20 +40,20 @@ class Bootstrap
         
     }
 
-    private function runAction(Request $request)
+    private function runAction()
     {
-        $controller = File::runClass($request->route->controller);
-        $action = $request->route->action;
+        $controller = File::runClass($this->route->controller);
+        $action = $this->route->action;
         if(!method_exists($controller, $action)){
-            throw new ActionNotFoundError($action, $request->route->controller);
+            throw new ActionNotFoundError($action, $this->route->controller);
         }
         
-        return $controller->$action($request);
+        return $controller->$action($this->request);
     }
 
-    private function runMidlewares(Request $request)
+    private function runMidlewares()
     {
-        foreach($request->route->middwares as $middleware){
+        foreach($this->route->middwares as $middleware){
             File::runClass($middleware);
         }
     }

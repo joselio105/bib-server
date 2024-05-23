@@ -2,6 +2,8 @@
 
 namespace plugse\server\core\infra\http\routes;
 
+use plugse\server\core\infra\http\Request;
+
 class Route
 {
     const PATTERN_ALPHA = '[0-9a-z\-]+';
@@ -28,13 +30,13 @@ class Route
         
     }
 
-    public function match(string $requestUri, string $requestHttpMethod='GET'): bool
+    public function match(Request $request): bool
     {
         $routeSlashed = str_replace('/', '\/', $this->endpoint);
         $pattern = preg_replace("/".self::PATTERN_ATTR."/", "(".self::PATTERN_ALPHA.")", $routeSlashed);
         
-        $matches = preg_match("/^{$pattern}$/", $requestUri)===1;
-        $matchMehod = $this->httpMethod === $requestHttpMethod;
+        $matches = preg_match("/^{$pattern}$/", $request->uri)===1;
+        $matchMehod = $this->httpMethod === $request->httpMethod;
 
         return  $matches and $matchMehod;
     }
