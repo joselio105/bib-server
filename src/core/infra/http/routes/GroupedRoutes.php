@@ -2,9 +2,7 @@
 
 namespace plugse\server\core\infra\http\routes;
 
-use Closure;
-
-class GroupeRoutes
+class GroupedRoutes
 {
     private array $routes;
     private string $controller;
@@ -17,28 +15,28 @@ class GroupeRoutes
         $this->middlewares = [];
     }
 
-    public function setPrefix(string $prefix): GroupeRoutes
+    public function setPrefix(string $prefix): GroupedRoutes
     {
         $this->prefix = trim(strtoupper($prefix), '/');
         
         return $this;
     }
 
-    public function setController(string $controller): GroupeRoutes
+    public function setController(string $controller): GroupedRoutes
     {
         $this->controller = $controller;
 
         return $this;
     }
 
-    public function setMiddleware(string $midleware): GroupeRoutes
+    public function setMiddleware(string $midleware): GroupedRoutes
     {
         array_push($this->middlewares, $midleware);
 
         return $this;
     }
 
-    public function addRoute(string $endpoint, string $httpMethod, string $action, array $middlewares = []): GroupeRoutes
+    public function addRoute(string $endpoint, string $httpMethod, string $action, array $middlewares = []): GroupedRoutes
     {
         $endpoint = trim(strtolower($endpoint), '/');
         $middlewares = empty($middlewares) ? $this->middlewares : $middlewares;

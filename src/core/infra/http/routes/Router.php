@@ -55,7 +55,7 @@ class Router
         $this->routes = [];
 
         foreach($routes as $route){
-            if(get_class($route)===GroupeRoutes::class){
+            if(get_class($route)===GroupedRoutes::class){
                 array_push($this->routes, ...$route->get());
             }else{
                 array_push($this->routes, $route);

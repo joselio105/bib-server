@@ -12,7 +12,7 @@ use plugse\test\mocks\controllers\FooController;
 use plugse\server\core\errors\RouteNotFoundError;
 use plugse\test\mocks\middlewares\TestMiddleware;
 use plugse\server\core\errors\RouteInconcistenceError;
-use plugse\server\core\infra\http\routes\GroupeRoutes;
+use plugse\server\core\infra\http\routes\GroupedRoutes;
 
 class RoutesTest extends TestCase
 {
@@ -20,7 +20,7 @@ class RoutesTest extends TestCase
     {
         $routes = [
             new Route('bar/:id', 'get', BarController::class, 'index', [TestMiddleware::class]),
-            (new GroupeRoutes())->setPrefix('foo')
+            (new GroupedRoutes())->setPrefix('foo')
                 ->setController(FooController::class)
                 ->addRoute('', 'GET', 'index')
                 ->addRoute(':id', 'GET', 'show')
@@ -57,7 +57,7 @@ class RoutesTest extends TestCase
     {
         $this->expectException(RouteInconcistenceError::class);
         $routes = [
-            (new GroupeRoutes)
+            (new GroupedRoutes)
             ->setPrefix('foo')
             ->setController(FooController::class)
             ->addRoute(':id', 'put', 'index')
@@ -74,7 +74,7 @@ class RoutesTest extends TestCase
     {
         $this->expectException(RouteNotFoundError::class);
         $routes = [
-            (new GroupeRoutes)
+            (new GroupedRoutes)
             ->setPrefix('foo')
             ->setController(FooController::class)
             ->addRoute(':id', 'put', 'index')
