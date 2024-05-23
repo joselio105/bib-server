@@ -10,7 +10,7 @@ use plugse\server\core\errors\TokenDecodeError;
 class Crypto
 {    
     private const BASE64_PADDING_LENGTH = 4;
-    private const SECRET_KEY_FILE = './setttings/main.php';
+    private const SECRET_KEY_FILE = './src/settings/main.php';
     private const TOKEN_EXPIRATION = 'PT1H';
 
     public static function hash($value)
@@ -92,7 +92,8 @@ class Crypto
     private static function getSecret()
     {
         if (file_exists(self::SECRET_KEY_FILE)) {
-            $settings = require_once self::SECRET_KEY_FILE;
+            $settings = require self::SECRET_KEY_FILE;
+            
             if (key_exists('cryptoSecret', $settings)) {
                 return $settings['cryptoSecret'];
             }

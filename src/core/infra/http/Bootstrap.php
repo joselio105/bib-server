@@ -3,10 +3,10 @@
 namespace plugse\server\core\infra\http;
 
 use plugse\server\core\helpers\File;
+use plugse\server\core\helpers\Classname;
 use plugse\server\core\infra\http\Request;
-use plugse\server\core\infra\http\routes\Router;
-use plugse\server\core\errors\ActionNotFoundError;
 use plugse\server\core\infra\http\routes\Route;
+use plugse\server\core\infra\http\routes\Router;
 
 class Bootstrap
 {
@@ -41,20 +41,19 @@ class Bootstrap
     }
 
     private function runAction()
-    {
-        $controller = File::runClass($this->route->controller);
-        $action = $this->route->action;
-        if(!method_exists($controller, $action)){
-            throw new ActionNotFoundError($action, $this->route->controller);
-        }
-        
-        return $controller->$action($this->request);
+    {        
+        return Classname::runMethod(
+            $this->route->controller, 
+            $this->route->action, 
+            [],
+            [$this->request]
+        );
     }
 
     private function runMidlewares()
     {
         foreach($this->route->middwares as $middleware){
-            File::runClass($middleware);
+            Classname::runMethod($middleware, 'run', [$this->request]);
         }
     }
     

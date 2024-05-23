@@ -16,18 +16,29 @@ class File
         return require($filename);
     }
 
-    public static function runClass(string $classname): object
+    public static function saveFileData(string $filename, array $content)
     {
-        $filename = self::getFilename($classname);
-        if(!file_exists($filename)){
-            throw new FileNotFoundError($filename);
+        $contentSave = file_exists($filename) ? self::getFileData($filename):[];
+
+        foreach($content as $key=>$value){
+            $contentSave[$key] = $value;
+        }
+        var_dump ($contentSave);
+        file_put_contents($filename, self::arrayToPhpFile($contentSave));        
+    }
+
+    private static function arrayToPhpFile(array $content): string
+    {
+        $text = "<?php \n return [";
+
+
+        foreach($content as $key=>$value){
+            if(is_string($key)){
+                $text .= "\n\t'{$key}'=>'{$value}',";
+            }
         }
 
-        if(!class_exists($classname)){
-            throw new ClassNotFoundError($classname);
-        }
-
-        return new $classname;
+        return $text."\n];";   
     }
 
     public static function readJsonFile(string $filename): array
@@ -38,15 +49,5 @@ class File
         }
 
         return [];
-    }
-
-    private static function getFilename(string $classname): string
-    {
-        $composerJson = self::readJsonFile('composer.json');
-        $autoload = $composerJson['autoload']['psr-4'];
-        $namespace = array_keys($autoload)[0];
-        $path = $autoload[$namespace];
-
-        return './'.str_replace('\\', '/', str_replace($namespace, $path, $classname)).'.php';
     }
 }

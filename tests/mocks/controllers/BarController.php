@@ -1,6 +1,6 @@
 <?php
 
-namespace plugse\test\controllers;
+namespace plugse\test\mocks\controllers;
 
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\infra\http\Response;

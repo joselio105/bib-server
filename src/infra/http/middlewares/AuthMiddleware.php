@@ -2,12 +2,12 @@
 
 namespace plugse\server\infra\http\middlewares;
 
+use plugse\server\core\helpers\Crypto;
+use plugse\server\core\infra\http\Request;
+use plugse\server\core\errors\TokenExpiredError;
 use plugse\server\core\errors\PermitionDeniedError;
 use plugse\server\core\errors\PermitionIncorrectError;
-use plugse\server\core\errors\TokenExpiredError;
-use plugse\server\core\helpers\Crypto;
-use plugse\server\core\infra\http\midlewares\Middleware;
-use plugse\server\core\infra\http\Request;
+use plugse\server\core\infra\http\middlewares\Middleware;
 
 class AuthMiddleware implements Middleware
 {

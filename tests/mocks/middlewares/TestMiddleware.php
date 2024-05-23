@@ -1,6 +1,6 @@
 <?php
 
-namespace plugse\test\middlewares;
+namespace plugse\test\mocks\middlewares;
 
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\infra\http\midlewares\Middleware;

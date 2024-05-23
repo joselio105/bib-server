@@ -1,20 +1,16 @@
 <?php
 
-namespace plugse\test;
+namespace plugse\test\core;
 
 use PHPUnit\Framework\TestCase;
-use plugse\server\core\helpers\File;
 use plugse\server\core\infra\http\Request;
-use plugse\test\controllers\BarController;
-use plugse\test\controllers\FooController;
-use plugse\test\middlewares\TestMiddleware;
-use plugse\test\controllers\ErrorControllers;
 use PHPUnit\Framework\Attributes\DataProvider;
 use plugse\server\core\infra\http\routes\Route;
-use plugse\server\core\errors\FileNotFoundError;
 use plugse\server\core\infra\http\routes\Router;
-use plugse\server\core\errors\ClassNotFoundError;
+use plugse\test\mocks\controllers\BarController;
+use plugse\test\mocks\controllers\FooController;
 use plugse\server\core\errors\RouteNotFoundError;
+use plugse\test\mocks\middlewares\TestMiddleware;
 use plugse\server\core\errors\RouteInconcistenceError;
 use plugse\server\core\infra\http\routes\GroupeRoutes;
 
@@ -34,17 +30,17 @@ class RoutesTest extends TestCase
         ]; 
 
         return [
-            [(new Request)->setUri('bar/123')->setHttpMethod('get'), $routes, ['id'=>'123'], []],
-            [(new Request)->setUri('foo')->setHttpMethod('get'), $routes, [], []],
-            [(new Request)->setUri('foo/123')->setHttpMethod('get'), $routes, ['id'=>'123'], []],
-            [(new Request)->setUri('foo')->setHttpMethod('post'), $routes, [], ['name'=>'Test']],
-            [(new Request)->setUri('foo/123')->setHttpMethod('put'), $routes, ['id'=>'123'], ['name'=>'Test']],
-            [(new Request)->setUri('foo/123')->setHttpMethod('delete'), $routes, ['id'=>'123'], []],
+            [(new Request)->setUri('bar/123')->setHttpMethod('get'), $routes, ['id'=>'123']],
+            [(new Request)->setUri('foo')->setHttpMethod('get'), $routes, []],
+            [(new Request)->setUri('foo/123')->setHttpMethod('get'), $routes, ['id'=>'123']],
+            [(new Request)->setUri('foo')->setHttpMethod('post'), $routes, []],
+            [(new Request)->setUri('foo/123')->setHttpMethod('put'), $routes, ['id'=>'123']],
+            [(new Request)->setUri('foo/123')->setHttpMethod('delete'), $routes, ['id'=>'123']],
         ];
     }
 
     #[DataProvider('provideRoutes')]
-    public function testRoute(Request $request, array $routes, array $params, array $body)
+    public function testRoute(Request $request, array $routes, array $params)
     {
         $router = new Router($request, $routes);
         $route = $router->getRoute();

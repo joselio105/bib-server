@@ -1,6 +1,6 @@
 <?php
 
-namespace plugse\server\core\infra\http\midlewares;
+namespace plugse\server\core\infra\http\middlewares;
 
 use plugse\server\core\infra\http\Request;
 
