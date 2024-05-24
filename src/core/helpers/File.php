@@ -3,7 +3,7 @@
 namespace plugse\server\core\helpers;
 
 use plugse\server\core\errors\FileNotFoundError;
-use plugse\server\core\errors\ClassNotFoundError;
+use plugse\server\core\errors\PropertyNotFoundError;
 
 class File
 {
@@ -14,6 +14,17 @@ class File
         }
 
         return require($filename);
+    }
+
+    public static function getProperty(string $filename, string $propertyName): string|array
+    {
+        $settings = self::getFileData($filename);
+
+        if (!key_exists('db', $settings)) {
+            throw new PropertyNotFoundError($filename);
+        }
+
+        return $settings[$propertyName];
     }
 
     public static function saveFileData(string $filename, array $content)
