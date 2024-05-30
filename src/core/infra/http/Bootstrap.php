@@ -16,7 +16,7 @@ class Bootstrap
 
     public function __construct(Request $request=null) {
         date_default_timezone_set('America/Sao_Paulo');
-        define('SECRET_KEY_FILE', './src/settings/main.php');
+        define('SETTINGS_FILE', './src/settings/main.php');
         $this->request = $request ?? new Request;
 
         $this->router = new Router(

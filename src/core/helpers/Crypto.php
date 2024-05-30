@@ -90,8 +90,8 @@ class Crypto
 
     private static function getSecret()
     {
-        if (file_exists(SECRET_KEY_FILE)) {
-            $settings = require SECRET_KEY_FILE;
+        if (file_exists(SETTINGS_FILE)) {
+            $settings = require SETTINGS_FILE;
             
             if (key_exists('cryptoSecret', $settings)) {
                 return $settings['cryptoSecret'];
@@ -107,7 +107,7 @@ class Crypto
         $key = self::hash($key);
         $settings['cryptoSecret'] = $key;
 
-        File::saveFileData(SECRET_KEY_FILE, $settings);
+        File::saveFileData(SETTINGS_FILE, $settings);
 
         return $key;
     }
