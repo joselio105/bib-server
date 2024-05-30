@@ -1,9 +1,6 @@
 {
     "name": "plugse/bib-server",
     "type": "project",
-    "require-dev": {
-        "phpunit/phpunit": "^11.1"
-    },
     "autoload": {
         "psr-4": {
             "plugse\\server\\": "src/",
@@ -16,10 +13,18 @@
             "email": "jose.helio@gmail.com"
         }
     ],
-    "require": {},
     "scripts": {
         "post-install-cmd": [
             "./vendor/bin/phpunit tests -v --testdox"
         ]
+    },
+    "require-dev": {
+        "pestphp/pest": "^2.34",
+        "pestphp/pest-plugin-drift": "^2.6"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }
