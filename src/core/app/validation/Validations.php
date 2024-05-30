@@ -14,25 +14,22 @@ class Validations
         $validationSchemas = $entity->getValidation();
         $attributes = $entity->getAttributes();
 
-        if (empty($attributes)) {
-            $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::IS_REQUIRED->value) . 'Error';
-            
-            throw new $exceptionName(get_class($entity));
-        }
         $lengthVAlidations = [
-            ValidationTypes::MUST_HAVE_LENGTH_EQUALS_TO,
-            ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN,
-            ValidationTypes::MUST_HAVE_LENGTH_SMALLER_THAN,
+            ValidationTypes::MUST_HAVE_LENGTH_EQUALS_TO->value,
+            ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN->value,
+            ValidationTypes::MUST_HAVE_LENGTH_SMALLER_THAN->value,
         ];
 
         foreach ($validationSchemas as $name => $schemas) {
             for ($i = 0; $i < count($schemas); $i++) {
                 $schema = $schemas[$i]->value;
+                
                 if (
                     in_array($schema, $lengthVAlidations) and
                     !is_int($schema)
                 ) {
                     self::$schema($attributes, $name, $schemas[$i + 1]);
+                    $i++;
                 } elseif (
                     !in_array($schema, $lengthVAlidations) and
                     !is_int($schema)
