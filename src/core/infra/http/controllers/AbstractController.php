@@ -2,9 +2,13 @@
 
 namespace plugse\server\core\infra\http\controllers;
 
-use plugse\server\core\app\uses\AbstractUses;
+use plugse\server\app\mappers\UserMapper;
 use plugse\server\core\infra\http\Request;
+use plugse\server\core\app\entities\Entity;
+use plugse\server\core\app\mappers\Mapper;
 use plugse\server\core\infra\http\Response;
+use plugse\server\core\app\uses\AbstractUses;
+use plugse\server\core\app\validation\Validations;
 
 abstract class AbstractController
 {
@@ -16,6 +20,8 @@ abstract class AbstractController
     }
 
     abstract protected function setUseCases();
+    abstract protected function getEntity(array $body): Entity;
+    abstract protected function getMapper(Entity $entity): Mapper;
 
     public function index(Request $request): Response
     {
@@ -30,7 +36,14 @@ abstract class AbstractController
 
     public function create(Request $request): Response
     {
-        return new Response(['response'=>$request->uri]);
+        $entity = $this->getEntity($request->body);
+        Validations::validate($entity);
+
+        $response = $this->uses->create($entity);
+
+        return new Response(
+            $this->getMapper($response), 201
+        );
     }
 
     public function update(Request $request): Response
