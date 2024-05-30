@@ -7,18 +7,18 @@ use plugse\server\core\app\entities\Entity;
 
 class Create
 {
-    private PDO $connection;
-    private string $tablename;
+    private readonly string $tablename;
     private Entity $entity;
     private string $query;
 
-    public function __construct(PDO $connection)
-    {
-        $this->connection = $connection;
-    }
+    public function __construct(private readonly PDO $connection)
+    {}
 
     public function setQuery(string $tablename, Entity $entity)
     {
+        $this->tablename = $tablename;
+        $this->entity = $entity;
+        
         $this->query = "
         INSERT INTO {$this->tablename}(
             {$this->getFieldsToCreate($entity)}
@@ -29,24 +29,24 @@ class Create
         return $this;
     }
 
-    public function run(array $subQueries = [])
+    public function run(array $subQueries = []): Entity
     {
         $this->connection->beginTransaction();
 
             $stmtCreate = $this->connection->prepare($this->query);
-            $stmtCreate->execute($this->getEntityAtributes());
+            $stmtCreate->execute($this->entity->getAttributes());
 
             $stmtRead = $this->setSubQueries($subQueries);
-            $response = $stmtRead->fetchObject();
-
+            $response = $stmtRead->fetchObject(get_class($this->entity));
+            
             $this->connection->commit();
 
-            return $response->id;
+            return $response;
     }
 
     private function setSubQueries(array $subQueries)
     {
-        $stmtRead = $this->connection->query('SELECT last_insert_id() id;');
+        $stmtRead = $this->connection->query("SELECT * FROM {$this->tablename} WHERE id=last_insert_id();");
         foreach ($subQueries as $query){
             $this->connection->query($query);
         }
@@ -54,24 +54,19 @@ class Create
         return $stmtRead;
     }
 
-    private function getEntityAtributes()
-    {
-        return get_class_vars(get_class($this->entity));
-    }
-
-    private function getFieldsToCreate(Entity $entity): string
+    private function getFieldsToCreate(): string
     {
         return implode(
             ', ',
-            $this->getEntityAtributes()
+            array_keys($this->entity->getAttributes())
         );
     }
 
-    private function getFieldValuesToCreate(Entity $entity): string
+    private function getFieldValuesToCreate(): string
     {
         return ':' . implode(
             ', :',
-            get_class_vars(get_class($this->entity))
+            array_keys($this->entity->getAttributes())
         );
     }
 }

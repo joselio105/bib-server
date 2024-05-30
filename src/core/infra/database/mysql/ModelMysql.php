@@ -22,9 +22,8 @@ abstract class ModelMysql implements Model
     protected string $mapper;
 
     public function __construct()
-
     {
-        $this->dbSettings = File::getProperty(SECRET_KEY_FILE, 'db');
+        $this->dbSettings = File::getProperty(SETTINGS_FILE, 'db');
         $this->setTableName();
         // $this->setQuerySelectMany();
         $this->connection = Connection::getInstance($this->dbSettings);
@@ -60,8 +59,13 @@ abstract class ModelMysql implements Model
         return "{$table_prefix}{$this->tableName}";
     }
 
+    public function clearTable()
+    {
+        $this->connection->query("TRUNCATE {$this->getTableName()}");
+        
+    }
 
-    public function create(Entity $entity): int
+    public function create(Entity $entity): Entity
     {
         
         // TableIndexes::checkIndexUniques($entity, static::class);
@@ -70,8 +74,8 @@ abstract class ModelMysql implements Model
         try {
             $create = new Create($this->connection);
             $response = $create->setQuery($this->getTableName(), $entity)->run();
-
-            return $response->id;
+            
+            return $response;
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage());
         }

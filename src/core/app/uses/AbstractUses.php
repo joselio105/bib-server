@@ -2,6 +2,7 @@
 
 namespace plugse\server\core\app\uses;
 
+use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\Model;
 
 class AbstractUses
@@ -11,6 +12,11 @@ class AbstractUses
     public function __construct(Model $model)
     {
         $this->model = $model;
+    }
+
+    public function create(Entity $entity): Entity
+    {
+        return $this->model->create($entity);
     }
 
     public function findManyByQuery(string $query)
