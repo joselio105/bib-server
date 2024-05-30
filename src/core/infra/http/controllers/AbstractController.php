@@ -10,6 +10,15 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
+// TODO - List users by name
+// TODO - List users by email
+// TODO - List users by phone (?)
+// TODO - Get user by id
+// TODO - Get user by email and password
+// TODO - Update user
+// TODO - Update user password
+// TODO - Delete user
+
 abstract class AbstractController
 {
     protected AbstractUses $uses;
@@ -25,13 +34,22 @@ abstract class AbstractController
 
     public function index(Request $request): Response
     {
-        $response = $this->uses->findManyByQuery($request->params['query']);
-        return new Response(['response'=>$request->uri]);
+        $found = $this->uses->findManyByQuery($request->params['query']);
+        $response = [];
+        foreach ($found as $entity){
+            $mapper = $this->getMapper($entity);
+            array_push($response, $mapper);
+        }
+
+        return new Response($response);
     }
 
     public function show(Request $request): Response
     {
-        return new Response(['response'=>$request->uri]);
+        $entity = $this->uses->findOneById($request->params['id']);
+        $response = $this->getMapper($entity);
+        
+        return new Response($response);
     }
 
     public function create(Request $request): Response

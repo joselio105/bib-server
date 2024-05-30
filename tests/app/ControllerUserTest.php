@@ -5,6 +5,7 @@ use plugse\server\core\app\validation\exceptions\IsRequiredError;
 use plugse\server\core\app\validation\exceptions\MustBeEmailError;
 use plugse\server\core\app\validation\exceptions\MustBePhoneError;
 use plugse\server\core\app\validation\exceptions\MustBeStringError;
+use plugse\server\core\app\validation\exceptions\MustHaveLengthGreatherThanError;
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\infra\http\Response;
 use plugse\server\infra\database\mysql\UserModel;
@@ -38,16 +39,41 @@ test('create user', function (string $name, string $email, string $phone) {
     expect($response->get())->toBeInstanceOf(Mapper::class);
 })->with('provideUsers');
 
+test('find many users', function() {
+    $users = require './tests/data/users.php';
+    $found = array_filter($users, function($user){
+        [$firstName, $middleName, $lastname] = explode(' ', $user->name);
+        return $lastname === 'Barbosa';
+    });
+
+    $request = new Request;
+    $request->params['query'] = 'barbosa';
+    $controller = new UsersController;
+    $response = $controller->index($request);
+
+    expect($response)->toBeInstaceOf(Response::class);
+    expect(http_response_code())->toBe(200);
+    expect($response->get())->toBe($found);
+});
+
+// die('-----');
+
 test('fail on null name', function (string $name, string $email, string $phone) {
     $request = new Request;
+    $controller = new UsersController;
+    $controller->create($request);
+})->with('provideUsers')->throws(IsRequiredError::class);
+
+test('fail on small name', function (string $name, string $email, string $phone) {
+    $request = new Request;
     $request->setBody([
-        'name'=>null,
+        'name'=>'',
         'email'=>$email,
         'phone'=>$phone,
     ]);
     $controller = new UsersController;
     $controller->create($request);
-})->with('provideUsers')->throws(IsRequiredError::class);
+})->with('provideUsers')->throws(MustHaveLengthGreatherThanError::class);
 
 test('fail on non string name', function (string $name, string $email, string $phone) {
     $request = new Request;

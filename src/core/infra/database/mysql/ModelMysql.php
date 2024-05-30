@@ -77,17 +77,31 @@ abstract class ModelMysql implements Model
             
             return $response;
         } catch (\Throwable $th) {
-            throw new Exception($th->getMessage());
+            throw $th;
         }
     }
 
-    public function findMany()
+    public function findMany(string $whereClauses, array $values, string $fields = '*'): array
     {
-        
+        try {
+            $read = new Read($this->connection, $this->entity);
+            $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
+
+            return $read->fetchMany($stmt);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
-    public function findOne()
+    public function findOne(string $whereClauses, array $values, string $fields = '*') : Entity
     {
-        
+        try {
+            $read = new Read($this->connection, $this->entity);
+            $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
+
+            return $read->fetchOne($stmt);
+        } catch (\Throwable $th) {
+            throw $th;
+        }   
     }
 }
