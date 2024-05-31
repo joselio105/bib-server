@@ -9,9 +9,15 @@ use plugse\server\core\app\validation\exceptions\MustBePhoneError;
 use plugse\server\core\app\validation\exceptions\MustBeStringError;
 use plugse\server\core\app\validation\exceptions\MustHaveLengthGreatherThanError;
 
-afterAll(function () {
-    (new UserModel)->clearTable();
+beforeAll(function () {
+    if(!defined('SETTINGS_FILE')){
+        define('SETTINGS_FILE', './src/settings/main.php');
+    }
 });
+
+// afterAll(function () {
+//     (new UserModel)->clearTable();
+// });
 
 test('Check on null name', function () {
     $request = new Request;

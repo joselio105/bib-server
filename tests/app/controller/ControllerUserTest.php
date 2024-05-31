@@ -32,16 +32,16 @@ test('create user', function (string $name, string $email, string $phone) {
 test('find many users', function() {
     $users = require './tests/data/users.php';
     $found = array_filter($users, function($user){
-        [$firstName, $middleName, $lastname] = explode(' ', $user->name);
+        [$firstName, $middleName, $lastname] = explode(' ', $user['name']);
         return $lastname === 'Barbosa';
     });
 
     $request = new Request;
-    $request->params['query'] = 'barbosa';
+    $request->setParams(['query' => 'barbosa']);
     $controller = new UsersController;
     $response = $controller->index($request);
 
-    expect($response)->toBeInstaceOf(Response::class);
+    expect($response)->toBeInstanceOf(Response::class);
     expect(http_response_code())->toBe(200);
     expect($response->get())->toBe($found);
 });
