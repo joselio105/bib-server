@@ -15,9 +15,9 @@ beforeAll(function () {
     }
 });
 
-// afterAll(function () {
-//     (new UserModel)->clearTable();
-// });
+afterAll(function () {
+    (new UserModel)->clearTable();
+});
 
 test('Check on null name', function () {
     $request = new Request;
@@ -111,4 +111,16 @@ test('Check on non phone phone', function () {
     $controller = new UsersController;
     $controller->create($request);
 })->throws(MustBePhoneError::class);
+
+test('Check query paramether', function () {
+    $request = new Request;
+    $controller = new UsersController;
+    $controller->index($request);
+})->throws(IsRequiredError::class);
+
+test('Check id paramether', function () {
+    $request = new Request;
+    $controller = new UsersController;
+    $controller->index($request);
+})->throws(IsRequiredError::class);
 

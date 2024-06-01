@@ -34,6 +34,8 @@ abstract class AbstractController
 
     public function index(Request $request): Response
     {
+        Validations::isRequired($request->params, 'query');
+        
         $found = $this->uses->findManyByQuery($request->params['query']);
         $response = [];
         foreach ($found as $entity){
@@ -46,6 +48,8 @@ abstract class AbstractController
 
     public function show(Request $request): Response
     {
+        Validations::isRequired($request->params, 'id');
+        
         $entity = $this->uses->findOneById($request->params['id']);
         $response = $this->getMapper($entity);
         

@@ -27,7 +27,7 @@ abstract class ModelMysql implements Model
         $this->setTableName();
         // $this->setQuerySelectMany();
         $this->connection = Connection::getInstance($this->dbSettings);
-        // $this->setEntity();
+        $this->setEntity();
         // $this->setMapper();
         // $this->setRelations();
         $this->setIndexUniques();
@@ -36,11 +36,7 @@ abstract class ModelMysql implements Model
 
     abstract protected function setTableName(): void;
 
-    // protected function setQuerySelectMany()
-    // {
-    //     $query = new QueryBuilder($this->getTableName(), []);
-    //     $this->querySelectMany = $query;
-    // }
+    abstract protected function setEntity(): void;
 
     protected function setIndexUniques()
     {
@@ -67,10 +63,6 @@ abstract class ModelMysql implements Model
 
     public function create(Entity $entity): Entity
     {
-        
-        // TableIndexes::checkIndexUniques($entity, static::class);
-        // $entity = $this->hashPasswordIfExists($entity, $entity->getValidationSchema());
-
         try {
             $create = new Create($this->connection);
             $response = $create->setQuery($this->getTableName(), $entity)->run();
@@ -87,7 +79,9 @@ abstract class ModelMysql implements Model
             $read = new Read($this->connection, $this->entity);
             $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
 
-            return $read->fetchMany($stmt);
+            $response = $read->fetchMany($stmt);
+            
+            return $response;
         } catch (\Throwable $th) {
             throw $th;
         }

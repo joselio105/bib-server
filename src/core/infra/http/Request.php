@@ -25,6 +25,7 @@ class Request
         $this->httpMethod = key_exists('REQUEST_METHOD', $_SERVER) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
         $this->body = $_POST;
         $this->header = function_exists('apache_request_headers') ? apache_request_headers() : [];
+        $this->params = [];
     }
 
     public function __get($name)

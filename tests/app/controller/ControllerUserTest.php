@@ -43,5 +43,25 @@ test('find many users', function() {
 
     expect($response)->toBeInstanceOf(Response::class);
     expect(http_response_code())->toBe(200);
-    expect($response->get())->toBe($found);
+    expect($response->get())->toHaveLength(count($found));
+    expect($response->get())->each->toHaveKeys(['id', 'name', 'email', 'phone', 'isAdmin', 'isActive']);
+});
+
+test('find one user by id', function() {
+    $users = require './tests/data/users.php';
+    $id = rand(0, count($users)-1);
+    $user = $users[$id - 1];
+
+    $request = new Request;
+    $request->setParams(['id' => $id]);
+    $controller = new UsersController;
+    $response = $controller->show($request);
+
+    expect($response)->toBeInstanceOf(Response::class);
+    expect(http_response_code())->toBe(200);
+    expect($response->get())->toBeInstanceOf(Mapper::class);
+    expect($response->get())->toHaveKeys(['id', 'name', 'email', 'phone', 'isAdmin', 'isActive']);
+    expect($response->get()->name)->toBe($user['name']);
+    expect($response->get()->email)->toBe($user['email']);
+    expect($response->get()->phone)->toBe($user['phone']);
 });

@@ -2,6 +2,7 @@
 
 namespace plugse\server\core\infra\database\mysql;
 
+use Exception;
 use PDO;
 use PDOStatement;
 use plugse\server\core\app\entities\Entity;
@@ -25,9 +26,13 @@ class Read
     public function run(array $values = []): PDOStatement
     {
         $stmt = $this->connection->prepare($this->query);
-        $stmt->execute($values);
-
+        if(!$stmt->execute($values)){
+            http_response_code(500);
+            throw new Exception("Falha ao executar a query '{$this->query}'");            
+        }
+        
         return $stmt;
+
     }
 
     public function fetchOne(PDOStatement $stmt)
