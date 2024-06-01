@@ -112,15 +112,20 @@ test('Check on non phone phone', function () {
     $controller->create($request);
 })->throws(MustBePhoneError::class);
 
-test('Check query paramether', function () {
+test('Check query parameter on findMany', function () {
     $request = new Request;
     $controller = new UsersController;
     $controller->index($request);
 })->throws(IsRequiredError::class);
 
-test('Check id paramether', function () {
+test('Check id parameter on findOne', function () {
     $request = new Request;
     $controller = new UsersController;
     $controller->index($request);
 })->throws(IsRequiredError::class);
 
+test('Check id parameter on update', function () {
+    $request = new Request;
+    $controller = new UsersController;
+    $controller->index($request);
+})->throws(IsRequiredError::class);

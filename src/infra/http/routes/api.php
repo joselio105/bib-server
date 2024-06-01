@@ -9,7 +9,7 @@ return [
     (new GroupedRoutes())
         ->setPrefix('users')
         ->setController(UsersController::class)
-        // ->setMiddleware(AuthMiddleware::class)
+        ->setMiddleware(AuthMiddleware::class)
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create')

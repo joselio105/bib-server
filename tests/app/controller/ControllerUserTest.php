@@ -65,3 +65,25 @@ test('find one user by id', function() {
     expect($response->get()->email)->toBe($user['email']);
     expect($response->get()->phone)->toBe($user['phone']);
 });
+
+test('update user', function () {
+    $users = require './tests/data/users.php';
+    $id = rand(0, count($users)-1);
+    $user = $users[$id - 1];
+    
+    $request = new Request;
+    $request->setParams(['id' => $id]);
+    $request->setBody([
+        'name' =>  'Name Updated'
+    ]);
+    $controller = new UsersController;
+    $response = $controller->update($request);    
+
+    expect($response)->toBeInstanceOf(Response::class);
+    expect(http_response_code())->toBe(200);
+    expect($response->get())->toBeInstanceOf(Mapper::class);
+    expect($response->get())->toHaveKeys(['id', 'name', 'email', 'phone', 'isAdmin', 'isActive']);
+    expect($response->get()->name)->not->toBe($user['name']);
+    expect($response->get()->email)->toBe($user['email']);
+    expect($response->get()->phone)->toBe($user['phone']);
+});

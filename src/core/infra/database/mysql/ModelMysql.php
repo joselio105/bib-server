@@ -73,6 +73,19 @@ abstract class ModelMysql implements Model
         }
     }
 
+    public function update(string $id, Entity $entity): Entity
+    {
+        try {
+            $update = new Update($this->connection);
+            $response = $update->setQuery($this->getTableName(), $entity, $id)->run();
+
+            return $response;
+            
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function findMany(string $whereClauses, array $values, string $fields = '*'): array
     {
         try {

@@ -9,6 +9,6 @@ interface Model
     public function findMany(string $whereClauses, array $values, string $fields = '*') : array;
     public function findOne(string $whereClauses, array $values, string $fields = '*') : Entity;
     public function create(Entity $entity): Entity;
-    // public function update();
+    public function update(string $id, Entity $entity): Entity;
     // public function delete();
 }

@@ -10,11 +10,6 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
-// TODO - List users by name
-// TODO - List users by email
-// TODO - List users by phone (?)
-// TODO - Get user by id
-// TODO - Get user by email and password
 // TODO - Update user
 // TODO - Update user password
 // TODO - Delete user
@@ -49,7 +44,7 @@ abstract class AbstractController
     public function show(Request $request): Response
     {
         Validations::isRequired($request->params, 'id');
-        
+
         $entity = $this->uses->findOneById($request->params['id']);
         $response = $this->getMapper($entity);
         
@@ -70,7 +65,13 @@ abstract class AbstractController
 
     public function update(Request $request): Response
     {
-        return new Response(['response'=>$request->uri]);
+        Validations::isRequired($request->params, 'id');
+
+        $entity = $this->getEntity($request->body);
+        $response = $this->uses->update($request->params['id'], $entity);
+        return new Response(
+            $this->getMapper($response)
+        );
     }
 
     public function delete(Request $request): Response

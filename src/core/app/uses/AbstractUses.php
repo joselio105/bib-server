@@ -59,4 +59,9 @@ abstract class AbstractUses
     {
         return $this->model->create($entity);
     }
+
+    public function update(string $id, Entity $entity): Entity
+    {
+        return $this->model->update($id, $entity);   
+    }
 }
