@@ -21,6 +21,9 @@ afterAll(function () {
 
 test('Check on null name', function () {
     $request = new Request;
+    $request->setBody(
+        ['name'=>null]
+    );
     $controller = new UsersController;
     $controller->create($request);
 })->throws(IsRequiredError::class);

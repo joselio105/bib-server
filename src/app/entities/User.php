@@ -4,13 +4,14 @@ namespace plugse\server\app\entities;
 
 use plugse\server\core\app\entities\Entity;
 
+/**
+ * @property id
+ * @property name
+ * @property password
+ * @property email
+ * @property phone
+ * @property isAdmin
+ * @property isActive
+ */
 class User extends Entity
-{
-    public $id;
-    public $name;
-    public $password;
-    public $email;
-    public $phone;
-    public $isAdmin;
-    public $isActive;
-}
+{}

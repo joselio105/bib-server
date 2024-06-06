@@ -78,7 +78,7 @@ abstract class ModelMysql implements Model
         try {
             $update = new Update($this->connection);
             $response = $update->setQuery($this->getTableName(), $entity, $id)->run();
-
+            
             return $response;
             
         } catch (\Throwable $th) {

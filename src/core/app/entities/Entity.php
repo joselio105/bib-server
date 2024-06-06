@@ -2,10 +2,30 @@
 
 namespace plugse\server\core\app\entities;
 
+use Exception;
+
 abstract class Entity
 {
+    private array $attributes;
+
     public function __construct(private array $validations=[])
     {}
+
+    public function __get($name)
+    {
+        if(!key_exists($name, $this->attributes)){
+            http_response_code(404);
+            $entity = self::class;
+            throw new Exception("O atributo '{$name}' não foi existe na entidade '{$entity}'");
+        }
+
+        return $this->attributes[$name];
+    }
+
+    public function __set($name, $value)
+    {
+        $this->attributes[$name] = $value;
+    }
 
     public function getValidation(): array
     {
@@ -13,17 +33,7 @@ abstract class Entity
     }
 
     public function getAttributes(): array
-    {
-        $abstract = get_class_vars(self::class);
-        $all = get_class_vars(static::class);
-
-        $response = [];
-        foreach(array_keys(array_diff_key($all, $abstract)) as $attr){
-            if(!is_null($this->$attr)){
-                $response[$attr] = $this->$attr;
-            }
-        }
-        
-        return $response;
+    {        
+        return $this->attributes;
     }
 }

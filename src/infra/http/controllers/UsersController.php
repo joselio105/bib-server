@@ -22,11 +22,24 @@ class UsersController extends AbstractController
     {
         $validations = require 'src/app/validations/UserValidation.php';
         $entity = new User($validations);
-        $entity->name = key_exists('name', $body) ? $body['name'] : null;
-        $entity->email = key_exists('email', $body) ? $body['email'] : null;
-        $entity->phone = key_exists('phone', $body) ? $body['phone'] : null;
-        $entity->isAdmin = key_exists('isAdmin', $body) ? $body['isAdmin'] : false;
-        $entity->isActive = key_exists('isActive', $body) ? $body['isActive'] : true;
+        if(key_exists('name', $body)) {
+            $entity->name =  $body['name'];
+        }
+        if(key_exists('email', $body)) {
+            $entity->email =  $body['email'];
+        }
+        if(key_exists('phone', $body)) {
+            $entity->phone =  $body['phone'];
+        }
+        if(key_exists('password', $body)) {
+            $entity->password =  $body['password'];
+        }
+        if(key_exists('isAdmin', $body)) {
+            $entity->isAdmin =  $body['isAdmin'];
+        }
+        if(key_exists('isActive', $body)) {
+            $entity->isActive =  $body['isActive'];
+        }
 
         return $entity;
     }
