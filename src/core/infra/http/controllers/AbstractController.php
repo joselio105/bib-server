@@ -10,6 +10,12 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
+// TODO: Publication - Generate authorCode - Create copies - hasMany copies
+// TODO: Copy - Validation - Generate registrationCode - belongsTo User - belongsTo Publication - hasMany Loans
+// TODO: Loan - Validation
+// TODO: User - hasMany Loans
+// TODO: Campos únicos...
+
 abstract class AbstractController
 {
     protected AbstractUses $uses;
