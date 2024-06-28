@@ -9,8 +9,8 @@ return [
     'publicationLanguage' => [ValidationTypes::IS_REQUIRED, ValidationTypes::MUST_BE_STRING],
     'originalLanguage' => [ValidationTypes::MUST_BE_STRING],
     'translator' => [ValidationTypes::MUST_BE_STRING],
-    'authors' => [ValidationTypes::MUST_BE_STRING], //TODO Verificar se atende ao padrão de Sobrenome, Nome separados por ponto e vírgula
-    'authorCode' => [ValidationTypes::MUST_BE_STRING], //TODO Definir um padrão e checa-lo
+    'authors' => [ValidationTypes::MUST_BE_AUTHORS],
+    'authorCode' => [ValidationTypes::MUST_BE_CUTTER],
     'isbn' => [ValidationTypes::MUST_BE_STRING, ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN, 9],
     'publisher' => [ValidationTypes::MUST_BE_STRING],
     'pubDate' => [ValidationTypes::MUST_BE_STRING],
@@ -20,4 +20,5 @@ return [
     'pagesNumber' => [ValidationTypes::MUST_BE_STRING],
     'edition' => [ValidationTypes::MUST_BE_STRING],
     'volume' => [ValidationTypes::MUST_BE_STRING],
+    'copies' => [ValidationTypes::MUST_BE_INT]
 ];

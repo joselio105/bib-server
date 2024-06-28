@@ -13,7 +13,7 @@ class Validations
     {
         $validationSchemas = $entity->getValidation();
         $attributes = $entity->getAttributes();
-
+        
         $lengthVAlidations = [
             ValidationTypes::MUST_HAVE_LENGTH_EQUALS_TO->value,
             ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN->value,
@@ -70,9 +70,13 @@ class Validations
 
     public static function mustBeInt(array $attributes, string $name): void
     {
+        if (!key_exists($name, $attributes)) {
+            return;
+        }
+
         $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_INT->value) . 'Error';
 
-        if (key_exists($name, $attributes) and !is_int(intval($attributes[$name])) and !is_null($attributes[$name])) {
+        if (!is_int($attributes[$name])) {
             throw new $exceptionName($name);
         }
     }
@@ -273,6 +277,53 @@ class Validations
         if (empty($matches)) {
             throw new $exceptionName("{$name} - {$value}");
         }
+    }
+
+    public static function mustBeAuthor(string $name, string $value): void
+    {
+        $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_AUTHORS->value) . 'Error';
+
+        $matches = [];
+        if (is_string($value)) {
+            $pattern = "/^([A-Z]{1}[\w|\s]+), ([\w|\s]+)/";
+            preg_match($pattern, $value, $matches);
+        }
+
+        if (empty($matches)) {
+            throw new $exceptionName("{$name} - {$value}");
+        }
+    }
+
+    public static function mustBeAuthors(array $attributes, string $name): void
+    {
+        if (!key_exists($name, $attributes)) {
+            return;
+        }
+        $values = explode('; ', $attributes[$name]);
+
+        foreach($values as $value){
+            self::mustBeAuthor($name, $value);
+        }        
+    }
+
+    public static function mustBeCutter(array $attributes, string $name): void
+    {
+        if (!key_exists($name, $attributes)) {
+            return;
+        }
+
+        $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_CUTTER->value) . 'Error';
+        $value = $attributes[$name];
+
+        $matches = [];
+        if (is_string($value)) {
+            $pattern = "/[A-Z]\d{2,4}[a-z]?/";
+            preg_match($pattern, $value, $matches);
+        }
+
+        if (empty($matches)) {
+            throw new $exceptionName("{$name} - {$value}");
+        }   
     }
 
     public static function mustHaveLengthEqualsTo(array $attributes, string $name, int $length): void

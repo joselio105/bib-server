@@ -28,6 +28,7 @@ use plugse\server\core\app\entities\Entity;
  * @property createdBy
  * @property updatedAt
  * @property updatedBy
+ * @property copies
  */
 class Publication extends Entity
 {}

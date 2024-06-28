@@ -23,7 +23,9 @@ class PublicationsController extends AbstractController
 
     protected function getEntity(array $body): Entity
     {
-        $entity = new Publication;
+        
+        $validations = require 'src/app/validations/PublicationValidation.php';
+        $entity = new Publication($validations);
 
         foreach ($body as $key => $value) {
             $entity->$key = $value;

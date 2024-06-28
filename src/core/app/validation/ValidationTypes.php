@@ -18,6 +18,8 @@ enum ValidationTypes: string
     case MUST_BE_DATE = 'mustBeDate';
     case MUST_BE_HOUR = 'mustBeHour';
     case MUST_BE_SEMESTER = 'mustBeSemester';
+    case MUST_BE_AUTHORS = 'mustBeAuthors';
+    case MUST_BE_CUTTER = 'mustBeCutter';
     case MUST_HAVE_LENGTH_EQUALS_TO = 'mustHaveLengthEqualsTo';
     case MUST_HAVE_LENGTH_GREATHER_THAN = 'mustHaveLengthGreatherThan';
     case MUST_HAVE_LENGTH_SMALLER_THAN = 'mustHaveLengthSmallerThan';
