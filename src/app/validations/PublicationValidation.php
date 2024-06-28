@@ -9,9 +9,9 @@ return [
     'publicationLanguage' => [ValidationTypes::IS_REQUIRED, ValidationTypes::MUST_BE_STRING],
     'originalLanguage' => [ValidationTypes::MUST_BE_STRING],
     'translator' => [ValidationTypes::MUST_BE_STRING],
-    'authors' => [ValidationTypes::MUST_BE_STRING],
-    'authorCode' => [ValidationTypes::IS_REQUIRED, ValidationTypes::MUST_BE_STRING],
-    'isbn' => [ValidationTypes::MUST_BE_STRING],
+    'authors' => [ValidationTypes::MUST_BE_STRING], //TODO Verificar se atende ao padrão de Sobrenome, Nome separados por ponto e vírgula
+    'authorCode' => [ValidationTypes::MUST_BE_STRING], //TODO Definir um padrão e checa-lo
+    'isbn' => [ValidationTypes::MUST_BE_STRING, ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN, 9],
     'publisher' => [ValidationTypes::MUST_BE_STRING],
     'pubDate' => [ValidationTypes::MUST_BE_STRING],
     'pubOriginalDate' => [ValidationTypes::MUST_BE_STRING],

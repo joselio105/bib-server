@@ -2,16 +2,19 @@
 
 namespace plugse\server\infra\http\controllers;
 
+use plugse\server\core\app\mappers\Mapper;
 use plugse\server\app\entities\Publication;
-use plugse\server\app\mappers\PublicationMapper;
 use plugse\server\app\uses\PublicationUses;
 use plugse\server\core\app\entities\Entity;
-use plugse\server\core\app\mappers\Mapper;
+use plugse\server\app\mappers\PublicationMapper;
 use plugse\server\infra\database\mysql\PublicationsModel;
 use plugse\server\core\infra\http\controllers\AbstractController;
+use plugse\server\infra\traits\CutterCode;
 
 class PublicationsController extends AbstractController
 {
+    use CutterCode;
+
     protected function setUseCases()
     {
         $model = new PublicationsModel;
@@ -25,6 +28,8 @@ class PublicationsController extends AbstractController
         foreach ($body as $key => $value) {
             $entity->$key = $value;
         }
+
+        $entity->cutterCode = $this->getCutterCode($entity);
 
         return $entity;
     }

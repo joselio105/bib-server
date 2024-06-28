@@ -27,6 +27,11 @@ abstract class Entity
         $this->attributes[$name] = $value;
     }
 
+    public function has(string $attribute): bool
+    {
+        return key_exists($attribute, $this->attributes);
+    }
+
     public function getValidation(): array
     {
         return $this->validations;

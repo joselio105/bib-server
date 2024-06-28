@@ -29,5 +29,5 @@ use plugse\server\core\app\entities\Entity;
  * @property updatedAt
  * @property updatedBy
  */
-class Publication implements Entity
+class Publication extends Entity
 {}

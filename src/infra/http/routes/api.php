@@ -20,7 +20,7 @@ return [
         ->setController(PublicationsController::class)        
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
-        ->addRoute('', 'POST', 'create', [AuthMiddleware::class])
+        ->addRoute('', 'POST', 'create')//, [AuthMiddleware::class])
         ->addRoute(':id', 'put', 'update', [AuthMiddleware::class])
         ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
 ];

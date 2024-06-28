@@ -10,7 +10,9 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
-// TODO: Publication - Generate authorCode - Create copies - hasMany copies
+// TODO: Publication - Generate authorCode - Qual escolher no caso de multiplos códigos?
+// TODO: Publication - Create copies
+// TODO: Publication - hasMany copies
 // TODO: Copy - Validation - Generate registrationCode - belongsTo User - belongsTo Publication - hasMany Loans
 // TODO: Loan - Validation
 // TODO: User - hasMany Loans

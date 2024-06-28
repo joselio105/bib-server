@@ -2,6 +2,7 @@
 
 namespace plugse\server\app\uses;
 
+use plugse\server\app\entities\Publication;
 use plugse\server\core\app\uses\AbstractUses;
 
 class PublicationUses extends AbstractUses
