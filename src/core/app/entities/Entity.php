@@ -32,6 +32,13 @@ abstract class Entity
         return key_exists($attribute, $this->attributes);
     }
 
+    public function unset(string $name)
+    {
+        if($this->has($name)){
+            unset($this->attributes[$name]);
+        }
+    }
+
     public function getValidation(): array
     {
         return $this->validations;

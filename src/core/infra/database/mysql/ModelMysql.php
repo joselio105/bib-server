@@ -17,7 +17,7 @@ abstract class ModelMysql implements Model
     // private array|Entity $found;
     // public array $relations;
     protected array $indexUniques;
-    protected array $indexForeigns;
+    // protected array $indexForeigns;
     protected string $entity;
     protected string $mapper;
 
@@ -31,7 +31,7 @@ abstract class ModelMysql implements Model
         // $this->setMapper();
         // $this->setRelations();
         $this->setIndexUniques();
-        $this->setIndexForeigns();
+        // $this->setIndexForeigns();
     }
 
     abstract protected function setTableName(): void;
@@ -41,11 +41,6 @@ abstract class ModelMysql implements Model
     protected function setIndexUniques()
     {
         $this->indexUniques = [];
-    }
-
-    protected function setIndexForeigns()
-    {
-        $this->indexForeigns = [];
     }
 
     public function getTableName(): string
@@ -61,11 +56,11 @@ abstract class ModelMysql implements Model
         
     }
 
-    public function create(Entity $entity): Entity
+    public function create(Entity $entity, array $subqueries=[]): Entity
     {
         try {
-            $create = new Create($this->connection);
-            $response = $create->setQuery($this->getTableName(), $entity)->run();
+            $create = new Create();
+            $response = $create->setQuery($this->getTableName(), $entity)->run($this->connection, $subqueries);
             
             return $response;
         } catch (\Throwable $th) {
@@ -89,10 +84,10 @@ abstract class ModelMysql implements Model
     public function findMany(string $whereClauses, array $values, string $fields = '*'): array
     {
         try {
-            $read = new Read($this->connection, $this->entity);
+            $read = new Read($this->connection);
             $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
 
-            $response = $read->fetchMany($stmt);
+            $response = $read->fetchMany($stmt, $this->entity);
             
             return $response;
         } catch (\Throwable $th) {
@@ -103,12 +98,24 @@ abstract class ModelMysql implements Model
     public function findOne(string $whereClauses, array $values, string $fields = '*') : Entity
     {
         try {
-            $read = new Read($this->connection, $this->entity);
+            $read = new Read($this->connection);
             $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
 
-            return $read->fetchOne($stmt);
+            return $read->fetchOne($stmt, $this->entity);
         } catch (\Throwable $th) {
             throw $th;
         }   
+    }
+
+    public function count(string $whereClauses, array $values=[]): int
+    {
+        try {
+            $read = new Read($this->connection);
+            $stmt = $read->setQueryCount($this->getTableName(), $whereClauses)->run($values);
+
+            return $read->fetchCount($stmt);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }

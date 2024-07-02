@@ -12,13 +12,21 @@ class Read
     private readonly string $tablename;
     private string $query;
 
-    public function __construct(private readonly PDO $connection, private readonly string $entity)
+    public function __construct(private readonly PDO $connection)
     {}
 
     public function setQuery(string $tableName, string $whereClauses, string $fields = '*'): Read
     {
         $this->tablename = $tableName;        
         $this->query = "SELECT {$fields} FROM {$this->tablename} WHERE {$whereClauses}";
+
+        return $this;
+    }
+
+    public function setQueryCount(string $tableName, string $whereClauses, string $field='*'): Read
+    {
+        $this->tablename = $tableName;        
+        $this->query = "SELECT COUNT({$field}) AS total FROM {$this->tablename} WHERE {$whereClauses}";
 
         return $this;
     }
@@ -35,13 +43,18 @@ class Read
 
     }
 
-    public function fetchOne(PDOStatement $stmt)
+    public function fetchOne(PDOStatement $stmt, string $entity)
     {
-        return $stmt->fetchObject($this->entity);
+        return $stmt->fetchObject($entity);
     }
 
-    public function fetchMany(PDOStatement $stmt): array
+    public function fetchMany(PDOStatement $stmt, string $entity): array
     {
-        return $stmt->fetchAll(PDO::FETCH_CLASS, $this->entity);
+        return $stmt->fetchAll(PDO::FETCH_CLASS, $entity);
+    }
+
+    public function fetchCount(PDOStatement $stmt)
+    {
+        return $stmt->fetchObject()->total;
     }
 }

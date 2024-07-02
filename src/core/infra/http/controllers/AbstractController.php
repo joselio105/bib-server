@@ -11,6 +11,7 @@ use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
 // TODO: Publication - Create copies
+// TODO: Publication - Create publication if not has another
 // TODO: Publication - hasMany copies
 // TODO: Copy - Validation - Generate registrationCode - belongsTo User - belongsTo Publication - hasMany Loans
 // TODO: Loan - Validation
@@ -27,7 +28,7 @@ abstract class AbstractController
     }
 
     abstract protected function setUseCases();
-    abstract protected function getEntity(array $body): Entity;
+    abstract protected function getEntity(array $body, bool $isUpdate=false): Entity;
     abstract protected function getMapper(Entity $entity): Mapper;
 
     public function index(Request $request): Response
@@ -58,7 +59,7 @@ abstract class AbstractController
     {
         $entity = $this->getEntity($request->body);
         Validations::validate($entity);
-die('---FIM---');
+        
         $response = $this->uses->create($entity);
 
         return new Response(
@@ -81,5 +82,15 @@ die('---FIM---');
     {
         http_response_code(404);
         throw new Exception('Função não implementada');
+    }
+
+    protected function getAuthUserId()
+    {
+        return 1;
+    }
+
+    protected function getNow()
+    {
+        return date('Y-m-d H:i:s');
     }
 }

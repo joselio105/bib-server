@@ -76,7 +76,8 @@ class Validations
 
         $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_INT->value) . 'Error';
 
-        if (!is_int($attributes[$name])) {
+        $isInt = preg_match('/\d+/', $attributes[$name]) !== false;
+        if (!$isInt) {
             throw new $exceptionName($name);
         }
     }
@@ -324,6 +325,26 @@ class Validations
         if (empty($matches)) {
             throw new $exceptionName("{$name} - {$value}");
         }   
+    }
+
+    public static function mustBeRegistration(array $attributes, string $name)
+    {
+        if (!key_exists($name, $attributes)) {
+            return;
+        }
+
+        $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_REGISTRATION->value) . 'Error';
+        $value = $attributes[$name];
+
+        $matches = [];
+        if (is_string($value)) {
+            $pattern = "/bib\.\d{4}\.\d{1,3}/";
+            preg_match($pattern, $value, $matches);
+        }
+
+        if (empty($matches)) {
+            throw new $exceptionName("{$name} - {$value}");
+        }
     }
 
     public static function mustHaveLengthEqualsTo(array $attributes, string $name, int $length): void

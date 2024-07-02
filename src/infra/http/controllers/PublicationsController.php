@@ -21,7 +21,7 @@ class PublicationsController extends AbstractController
         $this->uses = new PublicationUses($model);
     }
 
-    protected function getEntity(array $body): Entity
+    protected function getEntity(array $body, bool $isUpdate=false): Entity
     {
         
         $validations = require 'src/app/validations/PublicationValidation.php';
@@ -31,7 +31,12 @@ class PublicationsController extends AbstractController
             $entity->$key = $value;
         }
 
-        $entity->cutterCode = $this->getCutterCode($entity);
+        $entity->authorCode = $this->getCutterCode($entity);
+        if(!$isUpdate){
+            $entity->createdAt = $this->getNow();
+            $entity->createdBy = $this->getAuthUserId();
+        }
+        $entity->updatedBy = $this->getAuthUserId();
 
         return $entity;
     }
@@ -45,10 +50,10 @@ class PublicationsController extends AbstractController
             $entity->originalTitle,
             $entity->originalLanguage,
             $entity->publicationLanguage,
-            $entity->translator,
             $entity->authors,
-            $entity->authorCode,
+            $entity->translator,
             $entity->isbn,
+            $entity->authorCode,
             $entity->themeCode,
             $entity->publisher,
             $entity->pubDate,

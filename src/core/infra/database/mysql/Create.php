@@ -9,15 +9,17 @@ class Create
 {
     private readonly string $tablename;
     private Entity $entity;
+    private ?string $foreignKey;
     private string $query;
 
-    public function __construct(private readonly PDO $connection)
+    public function __construct()
     {}
 
-    public function setQuery(string $tablename, Entity $entity)
+    public function setQuery(string $tablename, Entity $entity, $foreignKey=null)
     {
         $this->tablename = $tablename;
         $this->entity = $entity;
+        $this->foreignKey = $foreignKey;
         
         $this->query = "
         INSERT INTO {$this->tablename}(
@@ -29,44 +31,61 @@ class Create
         return $this;
     }
 
-    public function run(array $subQueries = []): Entity
+    public function run(PDO $connection, array $subQueries = []): Entity
     {
-        $this->connection->beginTransaction();
+        $connection->beginTransaction();
 
-            $stmtCreate = $this->connection->prepare($this->query);
+            $stmtCreate = $connection->prepare($this->query);
             $stmtCreate->execute($this->entity->getAttributes());
 
-            $stmtRead = $this->setSubQueries($subQueries);
+            $stmtRead = $this->setSubQueries($connection, $subQueries);
             $response = $stmtRead->fetchObject(get_class($this->entity));
             
-            $this->connection->commit();
+            $connection->commit();
 
             return $response;
     }
 
-    private function setSubQueries(array $subQueries)
+    public function getQuery()
     {
-        $stmtRead = $this->connection->query("SELECT * FROM {$this->tablename} WHERE id=last_insert_id();");
+        return $this->query;
+    }
+
+    private function setSubQueries(PDO $connection, array $subQueries)
+    {
+        $connection->query("SET @last_id = LAST_INSERT_ID();");
         foreach ($subQueries as $query){
-            $this->connection->query($query);
+            $connection->query($query);
         }
+        $stmtRead = $connection->query("SELECT * FROM {$this->tablename} WHERE id=@last_id;");
 
         return $stmtRead;
     }
 
     private function getFieldsToCreate(): string
     {
-        return implode(
+        $fieds = implode(
             ', ',
             array_keys($this->entity->getAttributes())
         );
+
+        return is_null($this->foreignKey) ? $fieds : "{$this->foreignKey}, " . $fieds;
     }
 
     private function getFieldValuesToCreate(): string
     {
-        return ':' . implode(
+        $valuesToPrepare = ':' . implode(
             ', :',
             array_keys($this->entity->getAttributes())
         );
+
+        $values = ['@last_id'];
+        foreach ($this->entity->getAttributes() as $value) {
+            array_push($values, is_string($value) ? "\"{$value}\"" : $value);
+        }
+
+        return is_null($this->foreignKey) 
+            ? $valuesToPrepare 
+            : implode(', ', $values);
     }
 }
