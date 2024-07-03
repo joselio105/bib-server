@@ -55,9 +55,9 @@ abstract class AbstractUses
         return $this->model->findOne($whereClauses, $values);
     }
 
-    public function create(Entity $entity): Entity
+    public function create(Entity $entity, array $subqueries=[]): Entity
     {
-        return $this->model->create($entity);
+        return $this->model->create($entity, $subqueries);
     }
 
     public function update(string $id, Entity $entity): Entity

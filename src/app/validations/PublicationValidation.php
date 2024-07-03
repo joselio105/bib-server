@@ -11,6 +11,11 @@ return [
     'translator' => [ValidationTypes::MUST_BE_STRING],
     'authors' => [ValidationTypes::MUST_BE_AUTHORS],
     'authorCode' => [ValidationTypes::MUST_BE_CUTTER],
+    'themeCode' => [
+        ValidationTypes::IS_REQUIRED, 
+        ValidationTypes::MUST_BE_STRING, 
+        ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN, 2
+    ],
     'isbn' => [ValidationTypes::MUST_BE_STRING, ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN, 9],
     'publisher' => [ValidationTypes::MUST_BE_STRING],
     'pubDate' => [ValidationTypes::MUST_BE_STRING],

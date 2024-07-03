@@ -2,10 +2,9 @@
 
 namespace plugse\server\core\infra\database\mysql;
 
-use Exception;
 use PDO;
+use Exception;
 use PDOStatement;
-use plugse\server\core\app\entities\Entity;
 
 class Read
 {
@@ -31,15 +30,21 @@ class Read
         return $this;
     }
 
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
     public function run(array $values = []): PDOStatement
     {
-        $stmt = $this->connection->prepare($this->query);
-        if(!$stmt->execute($values)){
-            http_response_code(500);
-            throw new Exception("Falha ao executar a query '{$this->query}'");            
+        try {
+            $stmt = $this->connection->prepare($this->query);
+            $stmt->execute($values);
+            
+            return $stmt;
+        } catch (\Throwable $th) {
+            throw $th;
         }
-        
-        return $stmt;
 
     }
 
@@ -55,6 +60,6 @@ class Read
 
     public function fetchCount(PDOStatement $stmt)
     {
-        return $stmt->fetchObject()->total;
+        return intval($stmt->fetchObject()->total);
     }
 }

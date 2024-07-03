@@ -107,11 +107,17 @@ abstract class ModelMysql implements Model
         }   
     }
 
-    public function count(string $whereClauses, array $values=[]): int
+    public function count(string $whereClauses, array $values=[], string $field='id'): int
     {
         try {
             $read = new Read($this->connection);
-            $stmt = $read->setQueryCount($this->getTableName(), $whereClauses)->run($values);
+            $stmt = $read->setQueryCount(
+                $this->getTableName(), 
+                $whereClauses, 
+                $field
+            );
+            
+            $stmt = $read->run($values);
 
             return $read->fetchCount($stmt);
         } catch (\Throwable $th) {
