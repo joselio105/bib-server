@@ -3,8 +3,8 @@
 namespace plugse\server\core\infra\database\mysql;
 
 use PDO;
-use Exception;
 use PDOStatement;
+use plugse\server\core\infra\database\relations\HasMany;
 
 class Read
 {
@@ -50,7 +50,9 @@ class Read
 
     public function fetchOne(PDOStatement $stmt, string $entity)
     {
-        return $stmt->fetchObject($entity);
+        $response = $stmt->fetchObject($entity);
+
+        return $response;
     }
 
     public function fetchMany(PDOStatement $stmt, string $entity): array

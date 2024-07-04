@@ -18,7 +18,7 @@ class UsersController extends AbstractController
         $this->uses = new UserUses($model);
     }
 
-    protected function getEntity(array $body): Entity
+    protected function getEntity(array $body, bool $isUpdate = false): Entity
     {
         $validations = require 'src/app/validations/UserValidation.php';
         $entity = new User($validations);

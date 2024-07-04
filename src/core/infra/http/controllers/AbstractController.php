@@ -10,7 +10,6 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
-// TODO: Publication - hasMany copies
 // TODO: Copy - Validation - Generate registrationCode - belongsTo User - belongsTo Publication - hasMany Loans
 // TODO: Loan - Validation
 // TODO: User - hasMany Loans

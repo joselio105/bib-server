@@ -6,6 +6,8 @@ use plugse\server\app\entities\Publication;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\Model;
 use plugse\server\core\infra\database\mysql\ModelMysql;
+use plugse\server\core\infra\database\relations\HasMany;
+use plugse\server\core\infra\database\relations\Relations;
 
 class PublicationsModel extends ModelMysql
 {
@@ -19,18 +21,26 @@ class PublicationsModel extends ModelMysql
         $this->entity = Publication::class;
     }
 
-    public function findMany(string $whereClauses, array $values, string $fields = '*'): array
+    protected function setRelations()
     {
-        return [];
+        $this->relations = [
+            'copies' => new HasMany('publicationId', new CopyModel),
+        ];
     }
 
     public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
     {
-        return new Publication;
+        $entity = parent::findOne($whereClauses, $values, $fields);
+        $entity = (new Relations($this))->hasManyOnEntity('copies', $entity);
+
+        return $entity;
     }
 
-    public function update(string $id, Entity $entity): Entity
+    public function findMany(string $whereClauses, array $values, string $fields = '*'): array
     {
-        return new Entity;
+        $search = parent::findMany($whereClauses, $values, $fields);
+        $response = (new Relations($this))->hasManyOnArray('copies', $search);
+
+        return $response;
     }
 }

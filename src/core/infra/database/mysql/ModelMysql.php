@@ -2,20 +2,21 @@
 
 namespace plugse\server\core\infra\database\mysql;
 
-use Exception;
 use PDO;
-use plugse\server\core\app\entities\Entity;
 use plugse\server\core\helpers\File;
+use plugse\server\core\app\entities\Entity;
+use plugse\server\core\errors\ArrayKeyNotFoundError;
+use plugse\server\core\errors\ClassNotFoundError;
 use plugse\server\core\infra\database\Model;
+use plugse\server\core\infra\database\relations\HasMany;
 
 abstract class ModelMysql implements Model
 {
     private array $dbSettings;
     private PDO $connection;
     protected string $tableName;
-    // protected QueryBuilder $querySelectMany;
-    // private array|Entity $found;
-    // public array $relations;
+    protected string $primaryKey;
+    public array $relations;
     protected array $indexUniques;
     // protected array $indexForeigns;
     protected string $entity;
@@ -25,12 +26,13 @@ abstract class ModelMysql implements Model
     {
         $this->dbSettings = File::getProperty(SETTINGS_FILE, 'db');
         $this->setTableName();
+        $this->setPrimaryKey();
         // $this->setQuerySelectMany();
         $this->connection = Connection::getInstance($this->dbSettings);
         $this->setEntity();
         // $this->setMapper();
-        // $this->setRelations();
-        $this->setIndexUniques();
+        $this->setRelations();
+        // $this->setIndexUniques();
         // $this->setIndexForeigns();
     }
 
@@ -38,9 +40,14 @@ abstract class ModelMysql implements Model
 
     abstract protected function setEntity(): void;
 
-    protected function setIndexUniques()
+    protected function setPrimaryKey()
     {
-        $this->indexUniques = [];
+        $this->primaryKey = 'id';
+    }
+
+    protected function setRelations()
+    {
+        $this->relations = [];
     }
 
     public function getTableName(): string
@@ -48,6 +55,29 @@ abstract class ModelMysql implements Model
         $table_prefix = $this->dbSettings['prefix'];;
 
         return "{$table_prefix}{$this->tableName}";
+    }
+
+    public function getPrimaryKey(): string
+    {
+        return $this->primaryKey;
+    }
+
+    public function getRelations(string $type): array
+    {
+        return array_filter($this->relations, function($relation) use($type) {
+            return get_class($relation) === $type;
+        });
+    }
+
+    public function getRelationHasMany(string $field): HasMany
+    {
+        $relations = $this->getRelations(HasMany::class);
+
+        if(key_exists($field, $relations)) {
+            return $relations[$field];
+        }
+
+        throw new ArrayKeyNotFoundError($field, 'Model::relations');
     }
 
     public function clearTable()
@@ -100,8 +130,9 @@ abstract class ModelMysql implements Model
         try {
             $read = new Read($this->connection);
             $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
-
-            return $read->fetchOne($stmt, $this->entity);
+            $response = $read->fetchOne($stmt, $this->entity);
+            
+            return $response;
         } catch (\Throwable $th) {
             throw $th;
         }   

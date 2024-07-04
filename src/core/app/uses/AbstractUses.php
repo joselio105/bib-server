@@ -40,8 +40,10 @@ abstract class AbstractUses
         if (!$values) {
             throw new Exception('The number of fields and values must be the same');
         }
-
-        return $this->findOneBy($values);
+        
+        $response = $this->findOneBy($values);
+        
+        return $response;
     }
 
     protected function findOneBy(array $values)
@@ -52,7 +54,9 @@ abstract class AbstractUses
         }
         $whereClauses = implode(' AND ', $where);
 
-        return $this->model->findOne($whereClauses, $values);
+        $response = $this->model->findOne($whereClauses, $values);
+
+        return $response;
     }
 
     public function create(Entity $entity, array $subqueries=[]): Entity

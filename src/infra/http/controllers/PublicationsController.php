@@ -43,7 +43,7 @@ class PublicationsController extends AbstractController
 
     protected function getMapper(Entity $entity): Mapper
     {
-        return new PublicationMapper(
+        $mapper = new PublicationMapper(
             $entity->id,
             $entity->title,
             $entity->subTitle,
@@ -66,7 +66,11 @@ class PublicationsController extends AbstractController
             $entity->createdAt,
             $entity->createdBy,
             $entity->updatedAt,
-            $entity->updatedBy,
+            $entity->updatedBy
         );
+
+        $mapper->setCopies($entity->copies);
+
+        return $mapper;
     }
 }
