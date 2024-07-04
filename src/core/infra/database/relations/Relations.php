@@ -50,7 +50,9 @@ class Relations
     {
         foreach ($entities as $entity) {
             $entity->$field = array_filter($relatedEntities, function ($relatedEntity) use($entity) {
-                return $relatedEntity->$this->foreignKey === $entity->$this->primaryKey;
+                $primaryKey = $this->primaryKey;
+                $foreignKey = $this->foreignKey;
+                return $relatedEntity->$foreignKey === $entity->$primaryKey;
             });
             
         }
@@ -70,11 +72,12 @@ class Relations
 
         foreach ($entities as $key => $entity) {
             array_push($response['clauses'], "{$this->foreignKey}=:{$this->foreignKey}_{$key}");
-            $response['values'][":{$this->foreignKey}_{$key}"] = $entity->$this->primaryKey;
+            $primaryKey = $this->primaryKey;
+            $response['values'][":{$this->foreignKey}_{$key}"] = $entity->$primaryKey;
         }
 
         return [
-            'claudes' => implode(' OR ', $response['clauses']),
+            'clauses' => implode(' OR ', $response['clauses']),
             'values' => $response['values'],
         ];
     }
