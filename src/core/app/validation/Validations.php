@@ -89,8 +89,9 @@ class Validations
 
         $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_INT->value) . 'Error';
 
-        $isInt = preg_match('/\d+/', $attributes[$name]) !== false;
-        if (!$isInt) {
+        preg_match('/\d+/', $attributes[$name], $match);
+        
+        if (empty($match)) {
             throw new $exceptionName($name);
         }
     }

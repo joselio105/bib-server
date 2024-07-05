@@ -20,10 +20,19 @@ class CopyController extends AbstractController
 
     protected function getEntity(array $body, bool $isUpdate = false): Entity
     {
-        $entity = new Copy(Validations::getValidations('COPY'));
+        $entity = new Copy(Validations::getValidations('copy'));   
 
-        foreach ($body as $key=>$value) {
-            $entity->$key = $value;
+        if(!$isUpdate){
+            $entity->createdAt = $this->getNow();
+            $entity->createdBy = $this->getAuthUserId();
+        }
+        $entity->updatedBy = $this->getAuthUserId();
+        
+        $year = date('Y', strtotime($entity->createdAt));
+        $count = (new CopyModel)->count('createdAt LIKE :year', ['year' => "{$year}-%"]);
+        $entity->registrationCode = "bib.{$year}." . $count + 1;
+        if(key_exists('publicationId', $body)) {
+            $entity->publicationId = $body['publicationId'];
         }
 
         return $entity;

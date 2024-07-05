@@ -10,8 +10,10 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
-// TODO: Mapper - Não deveria dar erro quando não há o atributo
-// TODO: Copy - Validation - Generate registrationCode - belongsTo User - belongsTo Publication - hasMany Loans
+// TODO: Copy - belongsTo User
+// TODO: Copy - belongsTo Publication
+// TODO: Copy - hasMany Loans
+
 // TODO: Loan - Validation
 // TODO: User - hasMany Loans
 // TODO: Campos únicos...

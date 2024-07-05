@@ -2,7 +2,6 @@
 
 namespace plugse\server\app\uses;
 
-use Exception;
 use plugse\server\core\app\uses\AbstractUses;
 
 class CopyUses extends AbstractUses
