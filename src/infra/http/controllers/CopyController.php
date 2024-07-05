@@ -6,6 +6,7 @@ use plugse\server\app\entities\Copy;
 use plugse\server\app\mappers\CopyMapper;
 use plugse\server\app\uses\CopyUses;
 use plugse\server\core\app\entities\Entity;
+use plugse\server\core\app\validation\Validations;
 use plugse\server\core\infra\http\controllers\AbstractController;
 use plugse\server\infra\database\mysql\CopyModel;
 
@@ -19,7 +20,7 @@ class CopyController extends AbstractController
 
     protected function getEntity(array $body, bool $isUpdate = false): Entity
     {
-        $entity = new Copy();
+        $entity = new Copy(Validations::getValidations('COPY'));
 
         foreach ($body as $key=>$value) {
             $entity->$key = $value;

@@ -6,6 +6,7 @@ use plugse\server\app\entities\User;
 use plugse\server\app\uses\UserUses;
 use plugse\server\app\mappers\UserMapper;
 use plugse\server\core\app\entities\Entity;
+use plugse\server\core\app\validation\Validations;
 use plugse\server\infra\database\mysql\UserModel;
 use plugse\server\core\infra\http\controllers\AbstractController;
 
@@ -19,8 +20,7 @@ class UsersController extends AbstractController
 
     protected function getEntity(array $body, bool $isUpdate = false): Entity
     {
-        $validations = require 'src/app/validations/UserValidation.php';
-        $entity = new User($validations);
+        $entity = new User(Validations::getValidations('user'));
         if(key_exists('name', $body)) {
             $entity->name =  $body['name'];
         }

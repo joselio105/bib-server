@@ -28,16 +28,16 @@ class Bootstrap
 
     public function run()
     {
-        // try {
+        try {
             $this->route = $this->router->getRoute();
             $this->request->setParams($this->router->getParams($this->route));
             $this->runMidlewares();
             $response = $this->runAction();
             
             echo json_encode($response->get());
-        // } catch (\Throwable $th) {
-        //     echo json_encode(['error'=>$th->getMessage()], JSON_PRETTY_PRINT);
-        // }
+        } catch (\Throwable $th) {
+            echo json_encode(['error'=>$th->getMessage()], JSON_PRETTY_PRINT);
+        }
     }
 
     private function runAction()

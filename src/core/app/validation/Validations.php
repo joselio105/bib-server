@@ -3,6 +3,7 @@
 namespace plugse\server\core\app\validation;
 
 use plugse\server\core\app\entities\Entity;
+use plugse\server\core\helpers\File;
 
 class Validations
 {
@@ -37,6 +38,18 @@ class Validations
                     self::$schema($attributes, $name);
                 }
             }
+        }
+    }
+
+    public static function getValidations(string $entityName): array
+    {
+        $entityName = ucfirst(strtolower($entityName));
+        $validationsFile = "src/app/validations/{$entityName}Validation.php";
+
+        try {
+            return File::getFileData($validationsFile);
+        } catch (\Throwable $th) {
+            return [];
         }
     }
 

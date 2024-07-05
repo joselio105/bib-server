@@ -7,6 +7,7 @@ use plugse\server\app\entities\Publication;
 use plugse\server\app\uses\PublicationUses;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\app\mappers\PublicationMapper;
+use plugse\server\core\app\validation\Validations;
 use plugse\server\infra\database\mysql\PublicationsModel;
 use plugse\server\core\infra\http\controllers\AbstractController;
 
@@ -22,9 +23,7 @@ class PublicationsController extends AbstractController
 
     protected function getEntity(array $body, bool $isUpdate=false): Entity
     {
-        
-        $validations = require 'src/app/validations/PublicationValidation.php';
-        $entity = new Publication($validations);
+        $entity = new Publication(Validations::getValidations('Publication'));
 
         foreach ($body as $key => $value) {
             $entity->$key = $value;
