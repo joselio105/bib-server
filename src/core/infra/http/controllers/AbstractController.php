@@ -10,6 +10,7 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
+// TODO: Mapper - Não deveria dar erro quando não há o atributo
 // TODO: Copy - Validation - Generate registrationCode - belongsTo User - belongsTo Publication - hasMany Loans
 // TODO: Loan - Validation
 // TODO: User - hasMany Loans
@@ -26,7 +27,7 @@ abstract class AbstractController
 
     abstract protected function setUseCases();
     abstract protected function getEntity(array $body, bool $isUpdate=false): Entity;
-    abstract protected function getMapper(Entity $entity): Mapper;
+    abstract protected function getMapper(Entity $entity): array;
 
     public function index(Request $request): Response
     {

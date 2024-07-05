@@ -2,7 +2,7 @@
 
 namespace plugse\server\core\app\entities;
 
-use Exception;
+use plugse\server\core\errors\AttributeClassNotFoundError;
 
 abstract class Entity
 {
@@ -13,13 +13,11 @@ abstract class Entity
 
     public function __get($name)
     {
-        if(!key_exists($name, $this->attributes)){
-            http_response_code(404);
-            $entity = self::class;
-            throw new Exception("O atributo '{$name}' não foi existe na entidade '{$entity}'");
+        if(key_exists($name, $this->attributes)){
+            return $this->attributes[$name];
         }
-
-        return $this->attributes[$name];
+        
+        throw new AttributeClassNotFoundError($name, self::class, $this::class);
     }
 
     public function __set($name, $value)

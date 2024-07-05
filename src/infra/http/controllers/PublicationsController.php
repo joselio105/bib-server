@@ -2,14 +2,13 @@
 
 namespace plugse\server\infra\http\controllers;
 
-use plugse\server\core\app\mappers\Mapper;
+use plugse\server\infra\traits\CutterCode;
 use plugse\server\app\entities\Publication;
 use plugse\server\app\uses\PublicationUses;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\app\mappers\PublicationMapper;
 use plugse\server\infra\database\mysql\PublicationsModel;
 use plugse\server\core\infra\http\controllers\AbstractController;
-use plugse\server\infra\traits\CutterCode;
 
 class PublicationsController extends AbstractController
 {
@@ -41,36 +40,14 @@ class PublicationsController extends AbstractController
         return $entity;
     }
 
-    protected function getMapper(Entity $entity): Mapper
+    protected function getMapper(Entity $entity): array
     {
-        $mapper = new PublicationMapper(
-            $entity->id,
-            $entity->title,
-            $entity->subTitle,
-            $entity->originalTitle,
-            $entity->originalLanguage,
-            $entity->publicationLanguage,
-            $entity->authors,
-            $entity->translator,
-            $entity->isbn,
-            $entity->authorCode,
-            $entity->themeCode,
-            $entity->publisher,
-            $entity->pubDate,
-            $entity->pubOriginalDate,
-            $entity->pubPlace,
-            $entity->subjects,
-            $entity->pagesNumber,
-            $entity->edition,
-            $entity->volume,
-            $entity->createdAt,
-            $entity->createdBy,
-            $entity->updatedAt,
-            $entity->updatedBy
-        );
+        $mapper = new PublicationMapper($entity);
 
-        $mapper->setCopies($entity->copies);
+        if($entity->has('copies')) {
+            $mapper->setCopies($entity->copies);
+        }
 
-        return $mapper;
+        return $mapper->__serialize();
     }
 }

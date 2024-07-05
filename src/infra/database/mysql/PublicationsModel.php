@@ -35,12 +35,4 @@ class PublicationsModel extends ModelMysql
 
         return $entity;
     }
-
-    public function findMany(string $whereClauses, array $values, string $fields = '*'): array
-    {
-        $search = parent::findMany($whereClauses, $values, $fields);
-        $response = (new Relations($this))->hasManyOnArray('copies', $search);
-
-        return $response;
-    }
 }

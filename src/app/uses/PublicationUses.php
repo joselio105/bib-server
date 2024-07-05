@@ -12,13 +12,17 @@ use plugse\server\core\infra\database\mysql\Create;
 
 class PublicationUses extends AbstractUses
 {
-    public function findManyByQuery(string $query)
+    public function findManyByQuery(string $query): array
     {
         $values = [':query' => "%{$query}%"];
-        $whereClauses = "title LIKE :query OR originalTitle LIKE :query OR subTitle LIKE :query OR subjects LIKE :query OR authors LIKE :query";
+        $fields = ['title', 'originalTitle', 'subTitle', 'subjects', 'authors', 'themeCode'];
+        $whereClauses = [];
+        foreach ($fields as $field) {
+            array_push($whereClauses, "{$field} LIKE :query");
+        }
 
         return $this->model->findMany(
-            $whereClauses, 
+            implode(' OR ', $whereClauses), 
             $values, 
         );
     }

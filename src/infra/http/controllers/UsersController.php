@@ -3,12 +3,11 @@
 namespace plugse\server\infra\http\controllers;
 
 use plugse\server\app\entities\User;
-use plugse\server\app\mappers\UserMapper;
 use plugse\server\app\uses\UserUses;
+use plugse\server\app\mappers\UserMapper;
 use plugse\server\core\app\entities\Entity;
-use plugse\server\core\app\mappers\Mapper;
-use plugse\server\core\infra\http\controllers\AbstractController;
 use plugse\server\infra\database\mysql\UserModel;
+use plugse\server\core\infra\http\controllers\AbstractController;
 
 class UsersController extends AbstractController
 {
@@ -44,15 +43,8 @@ class UsersController extends AbstractController
         return $entity;
     }
 
-    protected function getMapper(Entity $entity): Mapper
+    protected function getMapper(Entity $entity): array
     {
-        return new UserMapper(
-            $entity->id,
-            $entity->name,
-            $entity->email,
-            $entity->phone,
-            $entity->isAdmin===1,
-            $entity->isActive===1,
-        );
+        return (new UserMapper($entity))->__serialize();
     }
 }

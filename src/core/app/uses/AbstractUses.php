@@ -10,7 +10,7 @@ abstract class AbstractUses
 {
     protected Model $model;
 
-    abstract public function findManyByQuery(string $query);
+    abstract public function findManyByQuery(string $query): array;
 
     public function __construct(Model $model)
     {

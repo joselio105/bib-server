@@ -38,7 +38,6 @@ class Bootstrap
         // } catch (\Throwable $th) {
         //     echo json_encode(['error'=>$th->getMessage()], JSON_PRETTY_PRINT);
         // }
-        
     }
 
     private function runAction()

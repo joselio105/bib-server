@@ -6,7 +6,7 @@ use plugse\server\core\app\uses\AbstractUses;
 
 class UserUses extends AbstractUses
 {
-    public function findManyByQuery(string $query)
+    public function findManyByQuery(string $query): array
     {
         $values = [':query' => "%{$query}%"];
         $whereClauses = "name LIKE :query OR email LIKE :query OR phone LIKE :query";
