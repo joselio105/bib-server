@@ -12,9 +12,13 @@ use plugse\server\core\app\validation\Validations;
 
 // TODO: Copy - belongsTo User
 // TODO: Copy - belongsTo Publication
+// TODO: Copy - findByQuery on Publication fields
 // TODO: Copy - hasMany Loans
 
 // TODO: Loan - Validation
+// TODO: Loan - belongsTo User
+// TODO: Loan - belongsTo Copy -> Publication
+
 // TODO: User - hasMany Loans
 // TODO: Campos únicos...
 
