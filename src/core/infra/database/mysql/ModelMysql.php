@@ -5,9 +5,8 @@ namespace plugse\server\core\infra\database\mysql;
 use PDO;
 use plugse\server\core\helpers\File;
 use plugse\server\core\app\entities\Entity;
-use plugse\server\core\errors\ArrayKeyNotFoundError;
-use plugse\server\core\errors\ClassNotFoundError;
 use plugse\server\core\infra\database\Model;
+use plugse\server\core\errors\ArrayKeyNotFoundError;
 use plugse\server\core\infra\database\relations\HasMany;
 
 abstract class ModelMysql implements Model
@@ -52,7 +51,8 @@ abstract class ModelMysql implements Model
 
     public function getTableName(): string
     {
-        $table_prefix = $this->dbSettings['prefix'];;
+        $table_prefix = $this->dbSettings['prefix'];
+        ;
 
         return "{$table_prefix}{$this->tableName}";
     }
@@ -64,7 +64,7 @@ abstract class ModelMysql implements Model
 
     public function getRelations(string $type): array
     {
-        return array_filter($this->relations, function($relation) use($type) {
+        return array_filter($this->relations, function ($relation) use ($type) {
             return get_class($relation) === $type;
         });
     }
@@ -73,7 +73,7 @@ abstract class ModelMysql implements Model
     {
         $relations = $this->getRelations(HasMany::class);
 
-        if(key_exists($field, $relations)) {
+        if (key_exists($field, $relations)) {
             return $relations[$field];
         }
 
@@ -83,15 +83,14 @@ abstract class ModelMysql implements Model
     public function clearTable()
     {
         $this->connection->query("TRUNCATE {$this->getTableName()}");
-        
     }
 
-    public function create(Entity $entity, array $subqueries=[]): Entity
+    public function create(Entity $entity, array $subqueries = []): Entity
     {
         try {
             $create = new Create();
             $response = $create->setQuery($this->getTableName(), $entity)->run($this->connection, $subqueries);
-            
+
             return $response;
         } catch (\Throwable $th) {
             throw $th;
@@ -103,9 +102,8 @@ abstract class ModelMysql implements Model
         try {
             $update = new Update($this->connection);
             $response = $update->setQuery($this->getTableName(), $entity, $id)->run();
-            
+
             return $response;
-            
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -118,36 +116,42 @@ abstract class ModelMysql implements Model
             $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
 
             $response = $read->fetchMany($stmt, $this->entity);
-            
+
             return $response;
         } catch (\Throwable $th) {
             throw $th;
         }
     }
 
-    public function findOne(string $whereClauses, array $values, string $fields = '*') : Entity
+    public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
     {
         try {
             $read = new Read($this->connection);
             $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
             $response = $read->fetchOne($stmt, $this->entity);
-            
-            return $response;
+
+            if ($response) {
+                return $response;
+            }
+
+            $emptyEntity = new $this->entity;
+
+            return $emptyEntity;
         } catch (\Throwable $th) {
             throw $th;
-        }   
+        }
     }
 
-    public function count(string $whereClauses, array $values=[], string $field='id'): int
+    public function count(string $whereClauses, array $values = [], string $field = 'id'): int
     {
         try {
             $read = new Read($this->connection);
             $stmt = $read->setQueryCount(
-                $this->getTableName(), 
-                $whereClauses, 
+                $this->getTableName(),
+                $whereClauses,
                 $field
             );
-            
+
             $stmt = $read->run($values);
 
             return $read->fetchCount($stmt);

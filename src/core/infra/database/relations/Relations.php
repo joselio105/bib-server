@@ -12,8 +12,8 @@ class Relations
 
     public function __construct(
         private readonly ModelMysql $model,
-    )
-    {}
+    ) {
+    }
 
     public function hasManyOnEntity(string $field, Entity $entity): Entity
     {
@@ -21,25 +21,29 @@ class Relations
         $this->primaryKey = $relation->model->getPrimaryKey();
         $this->foreignKey = $relation->foreignKey;
 
+        if (!$entity->has($this->primaryKey)) {
+            return $entity;
+        }
+
         $hasMany = $relation->model->findMany(
-            "{$this->foreignKey}=:{$this->foreignKey}", 
-            [":{$this->foreignKey}" => $entity->$this->primaryKey], 
+            "{$this->foreignKey}=:{$this->foreignKey}",
+            [":{$this->foreignKey}" => $entity->$this->primaryKey],
             $relation->fields
         );
-        
+
         $entity->$field = $hasMany;
 
         return $entity;
     }
 
     public function hasManyOnArray(string $field, array $entities): array
-    {        
+    {
         $relation = $this->model->getRelationHasMany($field);
         $where = $this->getHasManyWhere($entities, $relation);
 
         $hasMany = $relation->model->findMany(
-            $where['clauses'], 
-            $where['values'], 
+            $where['clauses'],
+            $where['values'],
             $relation->fields
         );
 
@@ -49,12 +53,12 @@ class Relations
     private function assemblyHasMany(array $entities, string $field, array $relatedEntities): array
     {
         foreach ($entities as $entity) {
-            $entity->$field = array_filter($relatedEntities, function ($relatedEntity) use($entity) {
+            $entity->$field = array_filter($relatedEntities, function ($relatedEntity) use ($entity) {
                 $primaryKey = $this->primaryKey;
                 $foreignKey = $this->foreignKey;
+
                 return $relatedEntity->$foreignKey === $entity->$primaryKey;
             });
-            
         }
 
         return $entities;
@@ -64,9 +68,9 @@ class Relations
     {
         $response = [
             'clauses' => [],
-            'values' => []
+            'values' => [],
         ];
-        
+
         $this->primaryKey = $relation->model->getPrimaryKey();
         $this->foreignKey = $relation->foreignKey;
 

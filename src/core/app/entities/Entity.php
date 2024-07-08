@@ -8,15 +8,16 @@ abstract class Entity
 {
     private array $attributes;
 
-    public function __construct(private array $validations=[])
-    {}
+    public function __construct(private array $validations = [])
+    {
+    }
 
     public function __get($name)
     {
-        if(key_exists($name, $this->attributes)){
+        if (key_exists($name, $this->attributes)) {
             return $this->attributes[$name];
         }
-        
+
         throw new AttributeClassNotFoundError($name, self::class, $this::class);
     }
 
@@ -27,12 +28,16 @@ abstract class Entity
 
     public function has(string $attribute): bool
     {
-        return key_exists($attribute, $this->attributes);
+        if (isset($this->attributes)) {
+            return key_exists($attribute, $this->attributes);
+        }
+
+        return false;
     }
 
     public function unset(string $name)
     {
-        if($this->has($name)){
+        if ($this->has($name)) {
             unset($this->attributes[$name]);
         }
     }
@@ -43,7 +48,7 @@ abstract class Entity
     }
 
     public function getAttributes(): array
-    {        
-        return $this->attributes;
+    {
+        return $this->attributes ?? [];
     }
 }
