@@ -14,9 +14,10 @@ class Bootstrap
     private Request $request;
     private Route $route;
 
-    public function __construct() {
+    public function __construct(Request $request=null) {
         date_default_timezone_set('America/Sao_Paulo');
-        $this->request = new Request;
+        define('SETTINGS_FILE', './src/settings/main.php');
+        $this->request = $request ?? new Request;
 
         $this->router = new Router(
             $this->request,
@@ -37,7 +38,6 @@ class Bootstrap
         } catch (\Throwable $th) {
             echo json_encode(['error'=>$th->getMessage()], JSON_PRETTY_PRINT);
         }
-        
     }
 
     private function runAction()

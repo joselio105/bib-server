@@ -4,29 +4,31 @@ namespace plugse\server\app\entities;
 
 use plugse\server\core\app\entities\Entity;
 
-class Publication implements Entity
-{
-    public int $id;
-    public string $title;
-    public string $subTitle;
-    public string $originalTitle;
-    public string $originalLanguage;
-    public string $publicationLanguage;
-    public array $authors;
-    public string $translator;
-    public string $isbn;
-    public string $authorCode;
-    public string $themeCode;
-    public string $publisher;
-    public string $pubDate;
-    public string $pubOriginalDate;
-    public string $pubPlace;
-    public string $subjects;
-    public int $pagesNumber;
-    public string $edition;
-    public string $volume;
-    public string $createdAt;
-    public string $createdBy;
-    public string $updatedAt;
-    public string $updatedBy;
-}
+/**
+ * @property id
+ * @property title
+ * @property subTitle
+ * @property originalTitle
+ * @property originalLanguage
+ * @property publicationLanguage
+ * @property authors
+ * @property translator
+ * @property isbn
+ * @property authorCode
+ * @property themeCode
+ * @property publisher
+ * @property pubDate
+ * @property pubOriginalDate
+ * @property pubPlace
+ * @property subjects
+ * @property pagesNumber
+ * @property edition
+ * @property volume
+ * @property createdAt
+ * @property createdBy
+ * @property updatedAt
+ * @property updatedBy
+ * @property copies
+ */
+class Publication extends Entity
+{}
