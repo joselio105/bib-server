@@ -9,8 +9,8 @@ use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
 
-// TODO: Copy - belongsTo User
 // TODO: Copy - belongsTo Publication
+// TODO: Copy - belongsTo User
 // TODO: Copy - findByQuery on Publication fields
 // TODO: Copy - hasMany Loans
 

@@ -4,48 +4,67 @@ namespace plugse\server\core\infra\database\mysql;
 
 use PDO;
 use PDOStatement;
-use plugse\server\core\infra\database\relations\HasMany;
+use plugse\server\core\errors\AttributeClassNotFoundError;
 
 class Read
 {
     private readonly string $tablename;
-    private string $query;
+    private array $fields;
+    private readonly string $countField;
+    private readonly string $whereClauses;
+    private array $innerJoins;
 
     public function __construct(private readonly PDO $connection)
-    {}
-
-    public function setQuery(string $tableName, string $whereClauses, string $fields = '*'): Read
     {
-        $this->tablename = $tableName;        
-        $this->query = "SELECT {$fields} FROM {$this->tablename} WHERE {$whereClauses}";
+        $this->fields = [];
+        $this->innerJoins = [];
+    }
+
+    public function setTablename(string $tablename): Read
+    {
+        $this->tablename = $tablename;
 
         return $this;
     }
 
-    public function setQueryCount(string $tableName, string $whereClauses, string $field='*'): Read
+    public function setCountField(string $countField): Read
     {
-        $this->tablename = $tableName;        
-        $this->query = "SELECT COUNT({$field}) AS total FROM {$this->tablename} WHERE {$whereClauses}";
+        $this->countField = $countField;
 
         return $this;
     }
 
-    public function getQuery()
+    public function setFields(array $fields): Read
     {
-        return $this->query;
+        $this->fields = $fields;
+
+        return $this;
+    }
+
+    public function setWhereClauses(string $whereClauses): Read
+    {
+        $this->whereClauses = $whereClauses;
+
+        return $this;
+    }
+
+    public function setInnerJoin(InnerJoin $innerJoin): Read
+    {
+        array_push($this->innerJoins, $innerJoin);
+
+        return $this;
     }
 
     public function run(array $values = []): PDOStatement
     {
         try {
-            $stmt = $this->connection->prepare($this->query);
+            $stmt = $this->connection->prepare($this->getQuery());
             $stmt->execute($values);
-            
+
             return $stmt;
         } catch (\Throwable $th) {
             throw $th;
         }
-
     }
 
     public function fetchOne(PDOStatement $stmt, string $entity)
@@ -63,5 +82,55 @@ class Read
     public function fetchCount(PDOStatement $stmt)
     {
         return intval($stmt->fetchObject()->total);
+    }
+
+    public function getQuery(): string
+    {
+        if (!isset($this->tablename)) {
+            throw new AttributeClassNotFoundError('tablename', $this::class, self::class);
+        }
+
+        if (!isset($this->whereClauses)) {
+            throw new AttributeClassNotFoundError('tablename', $this::class, self::class);
+        }
+
+        if (isset($this->countField)) {
+            return "SELECT COUNT({$this->countField}) AS total FROM {$this->tablename} WHERE {$this->whereClauses}";
+        }
+
+        return "SELECT {$this->getFields()} FROM {$this->tablename}{$this->getInnerJoins()} WHERE {$this->whereClauses}";
+    }
+
+    private function appendField(array $field)
+    {
+    }
+
+    private function getFields(): string
+    {
+        if (empty($this->fields)) {
+            return '*';
+        }
+
+        $response = [];
+
+        foreach ($this->fields as $key => $value) {
+            if (is_string($key)) {
+                array_push($response, "{$key} AS {$value}");
+            }
+
+            preg_match('/\w+\.(\w+)/', $value, $matches);
+            if ($matches) {
+                array_push($response, "{$value} AS {$matches[1]}");
+            } else {
+                array_push($response, $value);
+            }
+        }
+
+        return implode(",\n", $response);
+    }
+
+    private function getInnerJoins(): string
+    {
+        return '';
     }
 }

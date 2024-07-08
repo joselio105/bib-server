@@ -112,9 +112,13 @@ abstract class ModelMysql implements Model
     public function findMany(string $whereClauses, array $values, string $fields = '*'): array
     {
         try {
+            $fields = $fields === '*' ? [] : explode(', ', $fields);
             $read = new Read($this->connection);
-            $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
-
+            $stmt = $read
+                ->setTablename($this->getTableName())
+                ->setFields($fields)
+                ->setWhereClauses($whereClauses)
+                ->run($values);
             $response = $read->fetchMany($stmt, $this->entity);
 
             return $response;
@@ -126,8 +130,13 @@ abstract class ModelMysql implements Model
     public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
     {
         try {
+            $fields = $fields === '*' ? [] : explode(', ', $fields);
             $read = new Read($this->connection);
-            $stmt = $read->setQuery($this->getTableName(), $whereClauses, $fields)->run($values);
+            $stmt = $read
+                ->setTablename($this->getTableName())
+                ->setFields($fields)
+                ->setWhereClauses($whereClauses)
+                ->run($values);
             $response = $read->fetchOne($stmt, $this->entity);
 
             if ($response) {
@@ -146,11 +155,11 @@ abstract class ModelMysql implements Model
     {
         try {
             $read = new Read($this->connection);
-            $stmt = $read->setQueryCount(
-                $this->getTableName(),
-                $whereClauses,
-                $field
-            );
+            $stmt = $read
+                ->setTablename($this->getTableName())
+                ->setCountField($field)
+                ->setWhereClauses($whereClauses)
+                ->run($values);
 
             $stmt = $read->run($values);
 
