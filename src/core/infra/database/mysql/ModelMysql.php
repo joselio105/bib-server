@@ -17,7 +17,6 @@ abstract class ModelMysql implements Model
     protected string $primaryKey;
     public array $relations;
     protected array $indexUniques;
-    // protected array $indexForeigns;
     protected string $entity;
     protected string $mapper;
 
@@ -26,13 +25,9 @@ abstract class ModelMysql implements Model
         $this->dbSettings = File::getProperty(SETTINGS_FILE, 'db');
         $this->setTableName();
         $this->setPrimaryKey();
-        // $this->setQuerySelectMany();
         $this->connection = Connection::getInstance($this->dbSettings);
         $this->setEntity();
-        // $this->setMapper();
         $this->setRelations();
-        // $this->setIndexUniques();
-        // $this->setIndexForeigns();
     }
 
     abstract protected function setTableName(): void;
@@ -112,13 +107,8 @@ abstract class ModelMysql implements Model
     public function findMany(string $whereClauses, array $values, string $fields = '*'): array
     {
         try {
-            $fields = $fields === '*' ? [] : explode(', ', $fields);
-            $read = new Read($this->connection);
-            $stmt = $read
-                ->setTablename($this->getTableName())
-                ->setFields($fields)
-                ->setWhereClauses($whereClauses)
-                ->run($values);
+            $read = $this->buildQueryRead($whereClauses, $values, $fields);
+            $stmt = $read->run($values);
             $response = $read->fetchMany($stmt, $this->entity);
 
             return $response;
@@ -130,13 +120,8 @@ abstract class ModelMysql implements Model
     public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
     {
         try {
-            $fields = $fields === '*' ? [] : explode(', ', $fields);
-            $read = new Read($this->connection);
-            $stmt = $read
-                ->setTablename($this->getTableName())
-                ->setFields($fields)
-                ->setWhereClauses($whereClauses)
-                ->run($values);
+            $read = $this->buildQueryRead($whereClauses, $values, $fields);
+            $stmt = $read->run($values);
             $response = $read->fetchOne($stmt, $this->entity);
 
             if ($response) {
@@ -154,18 +139,24 @@ abstract class ModelMysql implements Model
     public function count(string $whereClauses, array $values = [], string $field = 'id'): int
     {
         try {
-            $read = new Read($this->connection);
-            $stmt = $read
-                ->setTablename($this->getTableName())
-                ->setCountField($field)
-                ->setWhereClauses($whereClauses)
-                ->run($values);
-
+            $read = $this->buildQueryRead($whereClauses, $values);
+            $read->setCountField($field);
             $stmt = $read->run($values);
 
             return $read->fetchCount($stmt);
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    protected function buildQueryRead(string $whereClauses, array $values, string $fields = '*'): Read
+    {
+        $fields = $fields === '*' ? [] : explode(', ', $fields);
+        $read = (new Read($this->connection))
+            ->setTablename($this->getTableName())
+            ->setFields($fields)
+            ->setWhereClauses($whereClauses);
+
+        return $read;
     }
 }

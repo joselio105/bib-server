@@ -4,6 +4,7 @@ namespace plugse\server\core\infra\database\mysql;
 
 use PDO;
 use PDOStatement;
+use plugse\server\core\app\validation\Validations;
 use plugse\server\core\errors\AttributeClassNotFoundError;
 
 class Read
@@ -43,6 +44,10 @@ class Read
 
     public function setWhereClauses(string $whereClauses): Read
     {
+        if ($whereClauses === 'id = :id') {
+            $whereClauses = "{$this->tablename}.id = :id";
+        }
+        
         $this->whereClauses = $whereClauses;
 
         return $this;
@@ -94,15 +99,29 @@ class Read
             throw new AttributeClassNotFoundError('tablename', $this::class, self::class);
         }
 
+        if (!empty($this->innerJoins) and empty($this->fields)) {
+            throw new AttributeClassNotFoundError('fields', $this::class, self::class);
+        }
+
         if (isset($this->countField)) {
             return "SELECT COUNT({$this->countField}) AS total FROM {$this->tablename} WHERE {$this->whereClauses}";
         }
 
-        return "SELECT {$this->getFields()} FROM {$this->tablename}{$this->getInnerJoins()} WHERE {$this->whereClauses}";
+        $joins = $this->getInnerJoins();
+
+        return "\nSELECT {$this->getFields()} \nFROM {$this->tablename}{$joins}\nWHERE {$this->whereClauses}";
     }
 
-    private function appendField(array $field)
+    private function appendField(InnerJoin $join)
     {
+        if (empty($this->fields)) {
+            array_push($this->fields, "{$this->tablename}.*");
+        }
+
+        foreach ($join->fields as $field => $label) {
+            Validations::mustBeForeignKey(['foreignKey' => $field], 'foreignKey');
+            $this->fields[$field] = $label;
+        }
     }
 
     private function getFields(): string
@@ -116,21 +135,26 @@ class Read
         foreach ($this->fields as $key => $value) {
             if (is_string($key)) {
                 array_push($response, "{$key} AS {$value}");
-            }
-
-            preg_match('/\w+\.(\w+)/', $value, $matches);
-            if ($matches) {
-                array_push($response, "{$value} AS {$matches[1]}");
             } else {
                 array_push($response, $value);
             }
         }
 
-        return implode(",\n", $response);
+        return "\n\t" . implode(",\n\t", $response);
     }
 
     private function getInnerJoins(): string
     {
-        return '';
+        if (empty($this->innerJoins)) {
+            return '';
+        }
+
+        $joins = [];
+        foreach ($this->innerJoins as $join) {
+            $this->appendField($join);
+            array_push($joins, $join);
+        }
+
+        return implode('', $joins);
     }
 }

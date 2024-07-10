@@ -4,9 +4,9 @@ namespace plugse\server\infra\database\mysql;
 
 use plugse\server\app\entities\Publication;
 use plugse\server\core\app\entities\Entity;
-use plugse\server\core\infra\database\Model;
 use plugse\server\core\infra\database\mysql\ModelMysql;
 use plugse\server\core\infra\database\relations\HasMany;
+use plugse\server\core\infra\database\relations\RelationHasMany;
 use plugse\server\core\infra\database\relations\Relations;
 
 class PublicationsModel extends ModelMysql
@@ -31,7 +31,7 @@ class PublicationsModel extends ModelMysql
     public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
     {
         $entity = parent::findOne($whereClauses, $values, $fields);
-        $entity = (new Relations($this))->hasManyOnEntity('copies', $entity);
+        $entity = (new RelationHasMany($this))->hasManyOnEntity('copies', $entity);
 
         return $entity;
     }

@@ -7,14 +7,13 @@ use plugse\server\core\helpers\File;
 
 class Validations
 {
-
     private const ExceptionsNamespace = 'plugse\\server\\core\\app\\validation\\exceptions\\';
 
     public static function validate(Entity $entity)
     {
         $validationSchemas = $entity->getValidation();
         $attributes = $entity->getAttributes();
-        
+
         $lengthVAlidations = [
             ValidationTypes::MUST_HAVE_LENGTH_EQUALS_TO->value,
             ValidationTypes::MUST_HAVE_LENGTH_GREATHER_THAN->value,
@@ -24,7 +23,7 @@ class Validations
         foreach ($validationSchemas as $name => $schemas) {
             for ($i = 0; $i < count($schemas); $i++) {
                 $schema = $schemas[$i]->value;
-                
+
                 if (
                     in_array($schema, $lengthVAlidations) and
                     !is_int($schema)
@@ -90,7 +89,7 @@ class Validations
         $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_INT->value) . 'Error';
 
         preg_match('/\d+/', $attributes[$name], $match);
-        
+
         if (empty($match)) {
             throw new $exceptionName($name);
         }
@@ -316,9 +315,9 @@ class Validations
         }
         $values = explode('; ', $attributes[$name]);
 
-        foreach($values as $value){
+        foreach ($values as $value) {
             self::mustBeAuthor($name, $value);
-        }        
+        }
     }
 
     public static function mustBeCutter(array $attributes, string $name): void
@@ -338,7 +337,7 @@ class Validations
 
         if (empty($matches)) {
             throw new $exceptionName("{$name} - {$value}");
-        }   
+        }
     }
 
     public static function mustBeRegistration(array $attributes, string $name)
@@ -353,6 +352,26 @@ class Validations
         $matches = [];
         if (is_string($value)) {
             $pattern = "/bib\.\d{4}\.\d{1,3}/";
+            preg_match($pattern, $value, $matches);
+        }
+
+        if (empty($matches)) {
+            throw new $exceptionName("{$name} - {$value}");
+        }
+    }
+
+    public static function mustBeForeignKey(array $attributes, string $name)
+    {
+        if (!key_exists($name, $attributes)) {
+            return;
+        }
+
+        $exceptionName = self::ExceptionsNamespace . ucfirst(ValidationTypes::MUST_BE_FOREIGNKEY->value) . 'Error';
+        $value = $attributes[$name];
+
+        $matches = [];
+        if (is_string($value)) {
+            $pattern = "/\w+\.\w+/";
             preg_match($pattern, $value, $matches);
         }
 

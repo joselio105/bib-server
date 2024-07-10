@@ -5,7 +5,7 @@ namespace plugse\server\core\infra\database\relations;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\mysql\ModelMysql;
 
-class Relations
+class RelationHasMany
 {
     private string $foreignKey;
     private string $primaryKey;
@@ -25,9 +25,10 @@ class Relations
             return $entity;
         }
 
+        $primaryKey = $this->primaryKey;
         $hasMany = $relation->model->findMany(
             "{$this->foreignKey}=:{$this->foreignKey}",
-            [":{$this->foreignKey}" => $entity->$this->primaryKey],
+            [":{$this->foreignKey}" => $entity->$primaryKey],
             $relation->fields
         );
 
