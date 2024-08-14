@@ -10,7 +10,7 @@ return [
     (new GroupedRoutes())
         ->setPrefix('users')
         ->setController(UsersController::class)
-        ->setMiddleware(AuthMiddleware::class)
+        // ->setMiddleware(AuthMiddleware::class)
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create')
@@ -18,7 +18,7 @@ return [
         ->addRoute(':id', 'delete', 'delete'),
     (new GroupedRoutes())
         ->setPrefix('publications')
-        ->setController(PublicationsController::class)        
+        ->setController(PublicationsController::class)
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create')//, [AuthMiddleware::class])
@@ -26,7 +26,7 @@ return [
         ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
     (new GroupedRoutes())
         ->setPrefix('copies')
-        ->setController(CopyController::class)        
+        ->setController(CopyController::class)
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create')//, [AuthMiddleware::class])

@@ -14,30 +14,30 @@ class UsersController extends AbstractController
 {
     protected function setUseCases()
     {
-        $model = new UserModel;
+        $model = new UserModel();
         $this->uses = new UserUses($model);
     }
 
     protected function getEntity(array $body, bool $isUpdate = false): Entity
     {
         $entity = new User(Validations::getValidations('user'));
-        if(key_exists('name', $body)) {
-            $entity->name =  $body['name'];
+        if (key_exists('name', $body)) {
+            $entity->name = $body['name'];
         }
-        if(key_exists('email', $body)) {
-            $entity->email =  $body['email'];
+        if (key_exists('email', $body)) {
+            $entity->email = $body['email'];
         }
-        if(key_exists('phone', $body)) {
-            $entity->phone =  $body['phone'];
+        if (key_exists('phone', $body)) {
+            $entity->phone = $body['phone'];
         }
-        if(key_exists('password', $body)) {
-            $entity->password =  $body['password'];
+        if (key_exists('password', $body)) {
+            $entity->password = $body['password'];
         }
-        if(key_exists('isAdmin', $body)) {
-            $entity->isAdmin =  $body['isAdmin'];
+        if (key_exists('isAdmin', $body)) {
+            $entity->isAdmin = $body['isAdmin'];
         }
-        if(key_exists('isActive', $body)) {
-            $entity->isActive =  $body['isActive'];
+        if (key_exists('isActive', $body)) {
+            $entity->isActive = $body['isActive'];
         }
 
         return $entity;

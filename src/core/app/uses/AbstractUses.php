@@ -61,7 +61,9 @@ abstract class AbstractUses
             return $response;
         }
 
-        throw new EntityNotFoundError($response::class, $values[array_keys($values)[0]]);
+        $class = get_class($response);
+
+        throw new EntityNotFoundError($class, $values[array_keys($values)[0]]);
     }
 
     public function create(Entity $entity, array $subqueries = []): Entity
