@@ -9,7 +9,7 @@ class MustBeRegistration
 {
     public static function make(array $attributes, string $attributeName)
     {
-        $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : 'Aa, a';
+        $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : 'bib.1234.56';
         $pattern = "/bib\.\d{4}\.\d{1,3}/";
 
         return new Validation(

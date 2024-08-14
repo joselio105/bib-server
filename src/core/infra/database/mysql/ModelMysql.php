@@ -128,7 +128,7 @@ abstract class ModelMysql implements Model
                 return $response;
             }
 
-            $emptyEntity = new $this->entity;
+            $emptyEntity = new $this->entity();
 
             return $emptyEntity;
         } catch (\Throwable $th) {

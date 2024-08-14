@@ -9,14 +9,16 @@ use plugse\server\core\errors\AttributeClassNotFoundError;
 
 class Read
 {
-    private readonly string $tablename;
+    private PDO $connection;
+    private string $tablename;
     private array $fields;
-    private readonly string $countField;
-    private readonly string $whereClauses;
+    private string $countField;
+    private string $whereClauses;
     private array $innerJoins;
 
-    public function __construct(private readonly PDO $connection)
+    public function __construct(PDO $connection)
     {
+        $this->connection = $connection;
         $this->fields = [];
         $this->innerJoins = [];
     }
@@ -47,7 +49,7 @@ class Read
         if ($whereClauses === 'id = :id') {
             $whereClauses = "{$this->tablename}.id = :id";
         }
-        
+
         $this->whereClauses = $whereClauses;
 
         return $this;
@@ -91,16 +93,19 @@ class Read
 
     public function getQuery(): string
     {
+        $classname = get_class($this);
+        $originClass = self::class;
+
         if (!isset($this->tablename)) {
-            throw new AttributeClassNotFoundError('tablename', $this::class, self::class);
+            throw new AttributeClassNotFoundError('tablename', $classname, $originClass);
         }
 
         if (!isset($this->whereClauses)) {
-            throw new AttributeClassNotFoundError('tablename', $this::class, self::class);
+            throw new AttributeClassNotFoundError('tablename', $classname, $originClass);
         }
 
         if (!empty($this->innerJoins) and empty($this->fields)) {
-            throw new AttributeClassNotFoundError('fields', $this::class, self::class);
+            throw new AttributeClassNotFoundError('fields', $classname, $originClass);
         }
 
         if (isset($this->countField)) {

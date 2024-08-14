@@ -8,6 +8,7 @@ use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\Validations;
+use plugse\server\core\app\validation\validations\IsRequired;
 
 // TODO: Loan - Validation
 // TODO: Loan - belongsTo User
@@ -31,7 +32,7 @@ abstract class AbstractController
 
     public function index(Request $request): Response
     {
-        Validations::isRequired($request->params, 'query');
+        IsRequired::make($request->params, 'query')->validate();
 
         $found = $this->uses->findManyByQuery($request->params['query']);
         $response = [];
@@ -45,7 +46,7 @@ abstract class AbstractController
 
     public function show(Request $request): Response
     {
-        Validations::isRequired($request->params, 'id');
+        IsRequired::make($request->params, 'id')->validate();
 
         $entity = $this->uses->findOneById($request->params['id']);
         $response = $this->getMapper($entity);
@@ -56,7 +57,7 @@ abstract class AbstractController
     public function create(Request $request): Response
     {
         $entity = $this->getEntity($request->body);
-        Validations::validate($entity);
+        // Validations::validate($entity);
 
         $response = $this->uses->create($entity);
 
@@ -68,7 +69,7 @@ abstract class AbstractController
 
     public function update(Request $request): Response
     {
-        Validations::isRequired($request->params, 'id');
+        IsRequired::make($request->params, 'id')->validate();
 
         $entity = $this->getEntity($request->body);
         $response = $this->uses->update($request->params['id'], $entity);
@@ -80,6 +81,7 @@ abstract class AbstractController
 
     public function delete(Request $request): Response
     {
+        IsRequired::make($request->params, 'id')->validate();
         http_response_code(404);
 
         throw new Exception('Função não implementada');

@@ -9,7 +9,7 @@ class MustBeForeignKey
 {
     public static function make(array $attributes, string $attributeName)
     {
-        $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : 'Aa, a';
+        $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : 'name.id';
         $pattern = "/\w+\.\w+/";
 
         return new Validation(

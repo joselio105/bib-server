@@ -7,9 +7,11 @@ use plugse\server\core\errors\AttributeClassNotFoundError;
 abstract class Entity
 {
     private array $attributes;
+    private array $validations;
 
-    public function __construct(private array $validations = [])
+    public function __construct(array $validations = [])
     {
+        $this->validations = $validations;
     }
 
     public function __get($name)
@@ -18,7 +20,7 @@ abstract class Entity
             return $this->attributes[$name];
         }
 
-        throw new AttributeClassNotFoundError($name, self::class, $this::class);
+        throw new AttributeClassNotFoundError($name, self::class, get_class($this));
     }
 
     public function __set($name, $value)

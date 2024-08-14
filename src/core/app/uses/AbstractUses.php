@@ -23,7 +23,7 @@ abstract class AbstractUses
         $functionStart = 'findOneBy';
         $unionFields = 'And';
 
-        $findBy = str_starts_with($name, $functionStart);
+        $findBy = substr($name, 0, strlen($functionStart)) === $functionStart;
 
         if (!$findBy) {
             throw new Exception("The function name must starts with {$functionStart}");

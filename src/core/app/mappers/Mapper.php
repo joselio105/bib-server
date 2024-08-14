@@ -26,10 +26,10 @@ abstract class Mapper
 
     public function __get($name)
     {
-        if(key_exists($name, $this->attributes)){
+        if (key_exists($name, $this->attributes)) {
             return $this->attributes[$name];
         }
-        
-        throw new AttributeClassNotFoundError($name, self::class, $this::class);
+
+        throw new AttributeClassNotFoundError($name, self::class, get_class($this));
     }
 }

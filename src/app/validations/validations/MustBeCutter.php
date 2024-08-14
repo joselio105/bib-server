@@ -9,7 +9,7 @@ class MustBeCutter
 {
     public static function make(array $attributes, string $attributeName)
     {
-        $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : 'Aa, a';
+        $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : 'A123c';
         $pattern = "/[A-Z]\d{2,4}[a-z]?/";
 
         return new Validation(
