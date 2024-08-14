@@ -2,13 +2,12 @@
 
 namespace plugse\server\core\app\validation\exceptions;
 
-use Exception;
+use plugse\server\core\app\validation\ValidationException;
 
-class MustHaveLowerCaseCharsError extends Exception
+class MustHaveLowerCaseCharsError extends ValidationException
 {
     public function __construct(string $name)
     {
-        http_response_code(412);
-        parent::__construct("A variável {$name} deve ter ao menos um caractere minúsculo");
+        parent::__construct("A variável {$name} deve ter ao menos um caractere minúsculo", 412);
     }
 }

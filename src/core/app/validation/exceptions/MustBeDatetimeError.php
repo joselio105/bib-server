@@ -2,13 +2,12 @@
 
 namespace plugse\server\core\app\validation\exceptions;
 
-use Exception;
+use plugse\server\core\app\validation\ValidationException;
 
-class MustBeDatetimeError extends Exception
+class MustBeDatetimeError extends ValidationException
 {
     public function __construct(string $name)
     {
-        http_response_code(406);
-        parent::__construct("A variável {$name} deve ser do tipo Datetime");
+        parent::__construct("A variável {$name} deve ser do tipo Datetime", 406);
     }
 }

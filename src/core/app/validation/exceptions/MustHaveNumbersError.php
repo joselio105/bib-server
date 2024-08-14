@@ -2,13 +2,12 @@
 
 namespace plugse\server\core\app\validation\exceptions;
 
-use Exception;
+use plugse\server\core\app\validation\ValidationException;
 
-class MustHaveNumbersError extends Exception
+class MustHaveNumbersError extends ValidationException
 {
     public function __construct(string $name)
     {
-        http_response_code(412);
-        parent::__construct("A variável {$name} deve ter ao menos um número");
+        parent::__construct("A variável {$name} deve ter ao menos um número", 412);
     }
 }

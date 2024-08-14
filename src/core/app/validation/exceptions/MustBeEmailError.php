@@ -2,13 +2,12 @@
 
 namespace plugse\server\core\app\validation\exceptions;
 
-use Exception;
+use plugse\server\core\app\validation\ValidationException;
 
-class MustBeEmailError extends Exception
+class MustBeEmailError extends ValidationException
 {
     public function __construct(string $name)
     {
-        http_response_code(406);
-        parent::__construct("A variável {$name} deve ser do tipo Email");
+        parent::__construct("A variável {$name} deve ser do tipo Email", 406);
     }
 }
