@@ -5,8 +5,7 @@ namespace plugse\server\infra\http\controllers;
 use plugse\server\app\entities\User;
 use plugse\server\app\uses\UserUses;
 use plugse\server\app\mappers\UserMapper;
-use plugse\server\core\app\entities\Entity;
-use plugse\server\core\app\validation\Validations;
+use plugse\server\app\schemas\UserSchema;
 use plugse\server\infra\database\mysql\UserModel;
 use plugse\server\core\infra\http\controllers\AbstractController;
 
@@ -18,33 +17,18 @@ class UsersController extends AbstractController
         $this->uses = new UserUses($model);
     }
 
-    protected function getEntity(array $body, bool $isUpdate = false): Entity
+    protected function setEntityName()
     {
-        $entity = new User(Validations::getValidations('user'));
-        if (key_exists('name', $body)) {
-            $entity->name = $body['name'];
-        }
-        if (key_exists('email', $body)) {
-            $entity->email = $body['email'];
-        }
-        if (key_exists('phone', $body)) {
-            $entity->phone = $body['phone'];
-        }
-        if (key_exists('password', $body)) {
-            $entity->password = $body['password'];
-        }
-        if (key_exists('isAdmin', $body)) {
-            $entity->isAdmin = $body['isAdmin'];
-        }
-        if (key_exists('isActive', $body)) {
-            $entity->isActive = $body['isActive'];
-        }
-
-        return $entity;
+        $this->entityName = get_class(new User());
     }
 
-    protected function getMapper(Entity $entity): array
+    protected function setSchema()
     {
-        return (new UserMapper($entity))->__serialize();
+        $this->schema = new UserSchema();
+    }
+
+    protected function setMapper()
+    {
+        $this->mapper = new UserMapper($this->entity);
     }
 }

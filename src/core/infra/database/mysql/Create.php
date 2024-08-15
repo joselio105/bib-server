@@ -2,25 +2,27 @@
 
 namespace plugse\server\core\infra\database\mysql;
 
+use Exception;
 use PDO;
 use plugse\server\core\app\entities\Entity;
 
 class Create
 {
-    private readonly string $tablename;
+    private string $tablename;
     private Entity $entity;
     private ?string $foreignKey;
     private string $query;
 
     public function __construct()
-    {}
+    {
+    }
 
-    public function setQuery(string $tablename, Entity $entity, $foreignKey=null)
+    public function setQuery(string $tablename, Entity $entity, $foreignKey = null)
     {
         $this->tablename = $tablename;
         $this->entity = $entity;
         $this->foreignKey = $foreignKey;
-        
+
         $this->query = "
         INSERT INTO {$this->tablename}(
             {$this->getFieldsToCreate($entity)}
@@ -35,15 +37,18 @@ class Create
     {
         $connection->beginTransaction();
 
-            $stmtCreate = $connection->prepare($this->query);
-            $stmtCreate->execute($this->entity->getAttributes());
+        $stmtCreate = $connection->prepare($this->query);
+        $stmtCreate->execute($this->entity->getAttributes());
 
-            $stmtRead = $this->setSubQueries($connection, $subQueries);
-            $response = $stmtRead->fetchObject(get_class($this->entity));
-            
-            $connection->commit();
+        $stmtRead = $this->setSubQueries($connection, $subQueries);
+        $response = $stmtRead->fetchObject(get_class($this->entity));
 
+        $connection->commit();
+        if ($response) {
             return $response;
+        }
+
+        throw new Exception('Falha ao cadastrar entidade');
     }
 
     public function getQuery()
@@ -53,8 +58,8 @@ class Create
 
     private function setSubQueries(PDO $connection, array $subQueries)
     {
-        $connection->query("SET @last_id = LAST_INSERT_ID();");
-        foreach ($subQueries as $query){
+        $connection->query('SET @last_id = LAST_INSERT_ID();');
+        foreach ($subQueries as $query) {
             $connection->query($query);
         }
         $stmtRead = $connection->query("SELECT * FROM {$this->tablename} WHERE id=@last_id;");
@@ -84,8 +89,8 @@ class Create
             array_push($values, is_string($value) ? "\"{$value}\"" : $value);
         }
 
-        return is_null($this->foreignKey) 
-            ? $valuesToPrepare 
+        return is_null($this->foreignKey)
+            ? $valuesToPrepare
             : implode(', ', $values);
     }
 }

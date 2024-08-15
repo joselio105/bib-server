@@ -1,14 +1,22 @@
 <?php
 
+namespace plugse\server\app\schemas;
+
+use plugse\server\infra\database\mysql\UserModel;
 use plugse\server\core\app\validation\ValidationSchema;
+use plugse\server\core\app\validation\validations\IsUnique;
 use plugse\server\core\app\validation\validations\IsRequired;
 use plugse\server\core\app\validation\validations\MustBeBool;
 use plugse\server\core\app\validation\validations\MustBeEmail;
 use plugse\server\core\app\validation\validations\MustBePhone;
 use plugse\server\core\app\validation\validations\MustBeString;
 use plugse\server\core\app\validation\validations\MustHaveLenght;
+use plugse\server\core\app\validation\validations\MustHaveNumbers;
+use plugse\server\core\app\validation\validations\MustHaveSpecialChars;
+use plugse\server\core\app\validation\validations\MustHaveLowerCaseChars;
+use plugse\server\core\app\validation\validations\MustHaveUpperCaseChars;
 
-class UserSchema implements ValidationSchema
+class UserSchema extends ValidationSchema
 {
     public function getSchema(array $attributes): array
     {
@@ -21,6 +29,7 @@ class UserSchema implements ValidationSchema
             'email' => [
                 IsRequired::make($attributes, 'email'),
                 MustBeEmail::make($attributes, 'email'),
+                IsUnique::make($attributes, 'email', new UserModel()),
             ],
             'phone' => [
                 IsRequired::make($attributes, 'phone'),
@@ -33,6 +42,18 @@ class UserSchema implements ValidationSchema
             'isAdmin' => [
                 IsRequired::make($attributes, 'isAdmin'),
                 MustBeBool::make($attributes, 'isAdmin'),
+            ],
+            'password' => [
+                MustHaveLowerCaseChars::make($attributes, 'password'),
+                MustHaveUpperCaseChars::make($attributes, 'password'),
+                MustHaveNumbers::make($attributes, 'password'),
+                MustHaveSpecialChars::make($attributes, 'password'),
+                MustHaveLenght::make(
+                    $attributes,
+                    'password',
+                    8,
+                    MustHaveLenght::LENGTH_GREATHER_EQUALS
+                ),
             ],
         ];
     }

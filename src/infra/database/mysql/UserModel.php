@@ -16,4 +16,9 @@ class UserModel extends ModelMysql
     {
         $this->entity = User::class;
     }
+
+    protected function setHashes()
+    {
+        $this->hashes = ['password'];
+    }
 }

@@ -7,7 +7,7 @@ use plugse\server\core\errors\AttributeClassNotFoundError;
 
 abstract class Mapper
 {
-    private array $attributes;
+    protected array $attributes;
 
     public function __construct(Entity $entity)
     {

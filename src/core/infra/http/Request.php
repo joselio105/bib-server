@@ -2,8 +2,6 @@
 
 namespace plugse\server\core\infra\http;
 
-use plugse\server\core\infra\http\routes\Route;
-
 /**
  * @property string $uri
  * @property string $httpMethod
@@ -21,16 +19,16 @@ class Request
 
     public function __construct()
     {
-        $this->uri = key_exists('REQUEST_URI', $_SERVER) ? strtolower(trim($_SERVER['REQUEST_URI'], '/')): '';
+        $this->uri = key_exists('REQUEST_URI', $_SERVER) ? strtolower(trim($_SERVER['REQUEST_URI'], '/')) : '';
         $this->httpMethod = key_exists('REQUEST_METHOD', $_SERVER) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
-        $this->body = $_POST;
+        $this->body = $this->getBodyInput();
         $this->header = function_exists('apache_request_headers') ? apache_request_headers() : [];
         $this->params = [];
     }
 
     public function __get($name)
     {
-        return $this->$name;   
+        return $this->$name;
     }
 
     public function setUri(string $value): Request
@@ -43,28 +41,35 @@ class Request
     public function setHttpMethod(string $value): Request
     {
         $this->httpMethod = strtoupper($value);
-        
+
         return $this;
     }
 
     public function setParams(array $value): Request
     {
         $this->params = $value;
-        
+
         return $this;
     }
 
     public function setBody(array $value): Request
     {
         $this->body = $value;
-        
+
         return $this;
     }
 
     public function setHeader(array $value): Request
     {
         $this->header = $value;
-        
+
         return $this;
+    }
+
+    private function getBodyInput(): array
+    {
+        return empty($_POST)
+            ? json_decode(file_get_contents('php://input'), JSON_OBJECT_AS_ARRAY)
+            : $_POST;
     }
 }

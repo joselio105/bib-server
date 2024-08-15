@@ -5,7 +5,7 @@ namespace plugse\server\core\app\validation\validations;
 use plugse\server\core\app\validation\Validation;
 use plugse\server\core\app\validation\exceptions\MustHaveNumbersError;
 
-class mustHaveNumbers
+class MustHaveNumbers
 {
     public static function make(array $attributes, string $atribiteName)
     {

@@ -12,7 +12,7 @@ class MustBeBool
         $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : true;
 
         return new Validation(
-            filter_var($value, FILTER_VALIDATE_BOOLEAN) !== $value,
+            filter_var($value, FILTER_VALIDATE_BOOLEAN) === $value,
             new MustBeBoolError("{$attributeName} => {$value}")
         );
     }

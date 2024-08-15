@@ -2,7 +2,10 @@
 
 namespace plugse\server\core\app\validation;
 
-interface ValidationSchema
+class ValidationSchema
 {
-    public function getSchema(array $attributes): array;
+    public function getSchema(array $attributes): array
+    {
+        return [];
+    }
 }

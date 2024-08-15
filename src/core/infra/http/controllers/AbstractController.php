@@ -3,11 +3,12 @@
 namespace plugse\server\core\infra\http\controllers;
 
 use Exception;
+use plugse\server\core\app\mappers\Mapper;
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
-use plugse\server\core\app\validation\Validations;
+use plugse\server\core\app\validation\ValidationSchema;
 use plugse\server\core\app\validation\validations\IsRequired;
 
 // TODO: Loan - Validation
@@ -20,15 +21,21 @@ use plugse\server\core\app\validation\validations\IsRequired;
 abstract class AbstractController
 {
     protected AbstractUses $uses;
+    protected Entity $entity;
+    protected string $entityName;
+    protected ValidationSchema $schema;
+    protected Mapper $mapper;
 
     public function __construct()
     {
         $this->setUseCases();
+        $this->setEntityName();
+        $this->setSchema();
     }
 
     abstract protected function setUseCases();
-    abstract protected function getEntity(array $body, bool $isUpdate = false): Entity;
-    abstract protected function getMapper(Entity $entity): array;
+    abstract protected function setEntityName();
+    abstract protected function setSchema();
 
     public function index(Request $request): Response
     {
@@ -56,10 +63,11 @@ abstract class AbstractController
 
     public function create(Request $request): Response
     {
-        $entity = $this->getEntity($request->body);
-        // Validations::validate($entity);
+        $this->setEntity($request->body);
+        $this->validate();
 
-        $response = $this->uses->create($entity);
+        $response = $this->uses->create($this->entity);
+        $this->setMapper();
 
         return new Response(
             $this->getMapper($response),
@@ -71,8 +79,11 @@ abstract class AbstractController
     {
         IsRequired::make($request->params, 'id')->validate();
 
-        $entity = $this->getEntity($request->body);
-        $response = $this->uses->update($request->params['id'], $entity);
+        $this->setEntityStored($request->params['id'], $request->body);
+        $this->validate();
+
+        $response = $this->uses->update($request->params['id'], $this->entity);
+        $this->setMapper();
 
         return new Response(
             $this->getMapper($response)
@@ -95,5 +106,43 @@ abstract class AbstractController
     protected function getNow()
     {
         return date('Y-m-d H:i:s');
+    }
+
+    protected function validate(): void
+    {
+        $attributes = $this->entity->getAttributes();
+
+        foreach ($this->schema->getSchema($attributes) as $schemas) {
+            foreach ($schemas as $schema) {
+                $schema->validate();
+            }
+        }
+    }
+
+    protected function setEntity(array $body): void
+    {
+        $this->entity = new $this->entityName($this->schema);
+        foreach ($body as $key => $value) {
+            $this->entity->$key = $value;
+        }
+    }
+
+    protected function setEntityStored(int $id, array $body = []): void
+    {
+        $this->entity = $this->uses->findOneById($id);
+
+        foreach ($body as $key => $value) {
+            $this->entity->$key = $value;
+        }
+    }
+
+    protected function getMapper(): array
+    {
+        return $this->mapper->__serialize();
+    }
+
+    protected function setMapper()
+    {
+        $this->mapper = new Mapper($this->entity);
     }
 }

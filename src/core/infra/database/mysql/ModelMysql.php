@@ -7,6 +7,7 @@ use plugse\server\core\helpers\File;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\Model;
 use plugse\server\core\errors\ArrayKeyNotFoundError;
+use plugse\server\core\helpers\Crypto;
 use plugse\server\core\infra\database\relations\HasMany;
 
 abstract class ModelMysql implements Model
@@ -19,6 +20,7 @@ abstract class ModelMysql implements Model
     protected array $indexUniques;
     protected string $entity;
     protected string $mapper;
+    protected array $hashes;
 
     public function __construct()
     {
@@ -27,12 +29,18 @@ abstract class ModelMysql implements Model
         $this->setPrimaryKey();
         $this->connection = Connection::getInstance($this->dbSettings);
         $this->setEntity();
+        $this->setHashes();
         $this->setRelations();
     }
 
     abstract protected function setTableName(): void;
 
     abstract protected function setEntity(): void;
+
+    protected function setHashes()
+    {
+        $this->hashes = [];
+    }
 
     protected function setPrimaryKey()
     {
@@ -82,9 +90,14 @@ abstract class ModelMysql implements Model
 
     public function create(Entity $entity, array $subqueries = []): Entity
     {
+        $entity = $this->hash($entity);
+
         try {
             $create = new Create();
-            $response = $create->setQuery($this->getTableName(), $entity)->run($this->connection, $subqueries);
+            $response = $create->setQuery(
+                $this->getTableName(),
+                $entity
+            )->run($this->connection, $subqueries);
 
             return $response;
         } catch (\Throwable $th) {
@@ -94,9 +107,15 @@ abstract class ModelMysql implements Model
 
     public function update(string $id, Entity $entity): Entity
     {
+        $entity = $this->hash($entity);
+
         try {
             $update = new Update($this->connection);
-            $response = $update->setQuery($this->getTableName(), $entity, $id)->run();
+            $response = $update->setQuery(
+                $this->getTableName(),
+                $entity,
+                $id
+            )->run();
 
             return $response;
         } catch (\Throwable $th) {
@@ -158,5 +177,14 @@ abstract class ModelMysql implements Model
             ->setWhereClauses($whereClauses);
 
         return $read;
+    }
+
+    private function hash(Entity $entity)
+    {
+        foreach ($this->hashes as $field) {
+            $entity->$field = Crypto::hash($entity->$field);
+        }
+
+        return $entity;
     }
 }
