@@ -2,8 +2,8 @@
 
 namespace plugse\server\app\validations\validations;
 
-use plugse\server\app\validations\exceptions\MustBeAuthorsError;
 use plugse\server\core\app\validation\Validation;
+use plugse\server\app\validations\exceptions\MustBeAuthorsError;
 
 class MusBeAuthorList
 {

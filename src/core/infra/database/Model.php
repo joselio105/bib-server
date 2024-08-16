@@ -9,6 +9,7 @@ interface Model
 {
     public function getPrimaryKey(): string;
     public function getTableName(): string;
+    public function getEntity(): string;
     public function getRelations(string $type): array;
     public function getRelationHasMany(string $field): HasMany;
 

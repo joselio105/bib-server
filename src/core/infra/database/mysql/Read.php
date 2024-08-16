@@ -4,7 +4,7 @@ namespace plugse\server\core\infra\database\mysql;
 
 use PDO;
 use PDOStatement;
-use plugse\server\core\app\validation\Validations;
+use plugse\server\app\validations\validations\MustBeForeignKey;
 use plugse\server\core\errors\AttributeClassNotFoundError;
 
 class Read
@@ -124,7 +124,7 @@ class Read
         }
 
         foreach ($join->fields as $field => $label) {
-            Validations::mustBeForeignKey(['foreignKey' => $field], 'foreignKey');
+            MustBeForeignKey::make(['foreignKey' => $field], 'foreignKey')->validate();
             $this->fields[$field] = $label;
         }
     }

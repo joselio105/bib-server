@@ -3,6 +3,7 @@
 namespace plugse\server\core\infra\http\controllers;
 
 use Exception;
+use plugse\server\app\entities\User;
 use plugse\server\core\app\mappers\Mapper;
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\app\entities\Entity;
@@ -11,6 +12,7 @@ use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\ValidationSchema;
 use plugse\server\core\app\validation\validations\IsRequired;
 
+// TODO: User - FindOne - FindMany
 // TODO: Loan - Validation
 // TODO: Loan - belongsTo User
 // TODO: Loan - belongsTo Copy -> Publication
@@ -29,13 +31,9 @@ abstract class AbstractController
     public function __construct()
     {
         $this->setUseCases();
-        $this->setEntityName();
-        $this->setSchema();
     }
 
     abstract protected function setUseCases();
-    abstract protected function setEntityName();
-    abstract protected function setSchema();
 
     public function index(Request $request): Response
     {
@@ -44,7 +42,8 @@ abstract class AbstractController
         $found = $this->uses->findManyByQuery($request->params['query']);
         $response = [];
         foreach ($found as $entity) {
-            $mapper = $this->getMapper($entity);
+            $this->entity = $entity;
+            $mapper = $this->getMapper();
             array_push($response, $mapper);
         }
 
@@ -55,8 +54,8 @@ abstract class AbstractController
     {
         IsRequired::make($request->params, 'id')->validate();
 
-        $entity = $this->uses->findOneById($request->params['id']);
-        $response = $this->getMapper($entity);
+        $this->entity = $this->uses->findOneById($request->params['id']);
+        $response = $this->getMapper();
 
         return new Response($response);
     }
@@ -67,7 +66,6 @@ abstract class AbstractController
         $this->validate();
 
         $response = $this->uses->create($this->entity);
-        $this->setMapper();
 
         return new Response(
             $this->getMapper($response),
@@ -83,7 +81,6 @@ abstract class AbstractController
         $this->validate();
 
         $response = $this->uses->update($request->params['id'], $this->entity);
-        $this->setMapper();
 
         return new Response(
             $this->getMapper($response)
@@ -111,8 +108,9 @@ abstract class AbstractController
     protected function validate(): void
     {
         $attributes = $this->entity->getAttributes();
+        $validation = $this->entity->getValidation();
 
-        foreach ($this->schema->getSchema($attributes) as $schemas) {
+        foreach ($validation as $schemas) {
             foreach ($schemas as $schema) {
                 $schema->validate();
             }
@@ -138,6 +136,8 @@ abstract class AbstractController
 
     protected function getMapper(): array
     {
+        $this->setMapper();
+
         return $this->mapper->__serialize();
     }
 

@@ -7,6 +7,9 @@ use plugse\server\core\helpers\File;
 
 class Validations
 {
+}
+/*
+{
     private const ExceptionsNamespace = 'plugse\\server\\core\\app\\validation\\exceptions\\';
 
     public static function validate(Entity $entity)
@@ -486,4 +489,4 @@ class Validations
             throw new $exceptionName("{$name} - {$value}");
         }
     }
-}
+}*/

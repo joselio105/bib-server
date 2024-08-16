@@ -4,10 +4,10 @@ namespace plugse\server\core\infra\database\mysql;
 
 use PDO;
 use plugse\server\core\helpers\File;
+use plugse\server\core\helpers\Crypto;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\Model;
 use plugse\server\core\errors\ArrayKeyNotFoundError;
-use plugse\server\core\helpers\Crypto;
 use plugse\server\core\infra\database\relations\HasMany;
 
 abstract class ModelMysql implements Model
@@ -63,6 +63,11 @@ abstract class ModelMysql implements Model
     public function getPrimaryKey(): string
     {
         return $this->primaryKey;
+    }
+
+    public function getEntity(): string
+    {
+        return $this->entity;
     }
 
     public function getRelations(string $type): array

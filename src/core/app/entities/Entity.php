@@ -2,18 +2,12 @@
 
 namespace plugse\server\core\app\entities;
 
-use plugse\server\core\app\validation\ValidationSchema;
 use plugse\server\core\errors\AttributeClassNotFoundError;
+use ReflectionClass;
 
 abstract class Entity
 {
     protected array $attributes;
-    private ValidationSchema $validations;
-
-    public function __construct(ValidationSchema $validations = null)
-    {
-        $this->validations = is_null($validations) ? new ValidationSchema() : $validations;
-    }
 
     public function __get($name)
     {
@@ -45,9 +39,12 @@ abstract class Entity
         }
     }
 
-    public function getValidation(): ValidationSchema
+    public function getValidation(): array
     {
-        return $this->validations;
+        $reflect = new ReflectionClass($this);
+        $validationSchema = str_replace('\\entities\\', '\\schemas\\', $reflect->getName()) . 'Schema';
+
+        return class_exists($validationSchema) ? (new $validationSchema())->getSchema($this->attributes) : [];
     }
 
     public function getAttributes(): array

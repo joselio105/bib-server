@@ -68,8 +68,14 @@ class Request
 
     private function getBodyInput(): array
     {
-        return empty($_POST)
-            ? json_decode(file_get_contents('php://input'), JSON_OBJECT_AS_ARRAY)
-            : $_POST;
+        if (!empty($_POST)) {
+            return $_POST;
+        }
+
+        if (strlen(file_get_contents('php://input')) > 0) {
+            return json_decode(file_get_contents('php://input'), JSON_OBJECT_AS_ARRAY);
+        }
+
+        return [];
     }
 }
