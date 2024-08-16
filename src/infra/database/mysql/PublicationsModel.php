@@ -7,7 +7,6 @@ use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\mysql\ModelMysql;
 use plugse\server\core\infra\database\relations\HasMany;
 use plugse\server\core\infra\database\relations\RelationHasMany;
-use plugse\server\core\infra\database\relations\Relations;
 
 class PublicationsModel extends ModelMysql
 {
@@ -24,7 +23,7 @@ class PublicationsModel extends ModelMysql
     protected function setRelations()
     {
         $this->relations = [
-            'copies' => new HasMany('publicationId', new CopyModel),
+            'copies' => new HasMany('publicationId', new CopyModel()),
         ];
     }
 

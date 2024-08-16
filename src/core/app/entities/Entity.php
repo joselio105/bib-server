@@ -39,12 +39,12 @@ abstract class Entity
         }
     }
 
-    public function getValidation(): array
+    public function getValidation(array $body): array
     {
         $reflect = new ReflectionClass($this);
         $validationSchema = str_replace('\\entities\\', '\\schemas\\', $reflect->getName()) . 'Schema';
 
-        return class_exists($validationSchema) ? (new $validationSchema())->getSchema($this->attributes) : [];
+        return class_exists($validationSchema) ? (new $validationSchema())->getSchema($body) : [];
     }
 
     public function getAttributes(): array

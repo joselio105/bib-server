@@ -6,20 +6,27 @@ use plugse\server\core\app\entities\Entity;
 
 class RelationsBelongsTo
 {
+    private Entity $entity;
+    private string $prefix;
+    private Entity $belongedEntity;
+
     public function __construct(
-        private readonly Entity $entity,
-        private readonly string $prefix,
-        private readonly Entity $belongedEntity
+        Entity $entity,
+        string $prefix,
+        Entity $belongedEntity
     ) {
+        $this->entity = $entity;
+        $this->prefix = $prefix;
+        $this->belongedEntity = $belongedEntity;
     }
 
     public function get(string $name): Entity
     {
         $entityName = get_class($this->entity);
-        $entity = new $entityName;
+        $entity = new $entityName();
 
         foreach ($this->entity->getAttributes() as $key => $value) {
-            if (str_starts_with($key, $this->prefix)) {
+            if (substr($key, 0, strlen($this->prefix)) === $this->prefix) {
                 $belongedKey = substr($key, strlen($this->prefix));
                 $this->belongedEntity->$belongedKey = $value;
             } else {

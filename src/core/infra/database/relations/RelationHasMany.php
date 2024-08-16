@@ -7,12 +7,13 @@ use plugse\server\core\infra\database\mysql\ModelMysql;
 
 class RelationHasMany
 {
+    private ModelMysql $model;
     private string $foreignKey;
     private string $primaryKey;
 
-    public function __construct(
-        private readonly ModelMysql $model,
-    ) {
+    public function __construct(ModelMysql $model)
+    {
+        $this->model = $model;
     }
 
     public function hasManyOnEntity(string $field, Entity $entity): Entity

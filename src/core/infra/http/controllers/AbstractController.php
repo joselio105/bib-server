@@ -3,7 +3,6 @@
 namespace plugse\server\core\infra\http\controllers;
 
 use Exception;
-use plugse\server\app\entities\User;
 use plugse\server\core\app\mappers\Mapper;
 use plugse\server\core\infra\http\Request;
 use plugse\server\core\app\entities\Entity;
@@ -12,7 +11,7 @@ use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\ValidationSchema;
 use plugse\server\core\app\validation\validations\IsRequired;
 
-// TODO: User - FindOne - FindMany
+// TODO: Publication - hasMany Copies - update
 // TODO: Loan - Validation
 // TODO: Loan - belongsTo User
 // TODO: Loan - belongsTo Copy -> Publication
@@ -63,7 +62,7 @@ abstract class AbstractController
     public function create(Request $request): Response
     {
         $this->setEntity($request->body);
-        $this->validate();
+        $this->validate($request->body);
 
         $response = $this->uses->create($this->entity);
 
@@ -78,7 +77,7 @@ abstract class AbstractController
         IsRequired::make($request->params, 'id')->validate();
 
         $this->setEntityStored($request->params['id'], $request->body);
-        $this->validate();
+        $this->validate($this->entity->getAttributes());
 
         $response = $this->uses->update($request->params['id'], $this->entity);
 
@@ -105,10 +104,9 @@ abstract class AbstractController
         return date('Y-m-d H:i:s');
     }
 
-    protected function validate(): void
+    protected function validate(array $body): void
     {
-        $attributes = $this->entity->getAttributes();
-        $validation = $this->entity->getValidation();
+        $validation = $this->entity->getValidation($body);
 
         foreach ($validation as $schemas) {
             foreach ($schemas as $schema) {
@@ -119,7 +117,7 @@ abstract class AbstractController
 
     protected function setEntity(array $body): void
     {
-        $this->entity = new $this->entityName($this->schema);
+        $this->entity = new $this->entityName();
         foreach ($body as $key => $value) {
             $this->entity->$key = $value;
         }

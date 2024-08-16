@@ -2,22 +2,31 @@
 
 namespace plugse\server\core\infra\database\mysql;
 
-use plugse\server\core\app\validation\Validations;
 use plugse\server\core\infra\database\Model;
+use plugse\server\app\validations\validations\MustBeForeignKey;
 
 class InnerJoin
 {
+    public Model $model;
+    public string $foreignKey;
+    public array $fields;
+    public string $tableAlias = '';
+
     public function __construct(
-        public readonly Model $model,
-        public readonly string $foreignKey,
-        public readonly array $fields,
-        public readonly string $tableAlias = ''
+        Model $model,
+        string $foreignKey,
+        array $fields,
+        string $tableAlias = ''
     ) {
+        $this->model = $model;
+        $this->foreignKey = $foreignKey;
+        $this->fields = $fields;
+        $this->tableAlias = $tableAlias;
     }
 
     public function __toString()
     {
-        Validations::mustBeForeignKey(['foreignKey' => $this->foreignKey], 'foreignKey');
+        MustBeForeignKey::make(['foreignKey' => $this->foreignKey], 'foreignKey')->validate();
 
         $joinTableName = $this->model->getTableName();
         $joinPrimaryKey = $this->model->getPrimaryKey();
