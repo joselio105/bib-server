@@ -10,7 +10,7 @@ trait CutterCode
 {
     public function getCutterCode(Publication $publication): string
     {
-        if ($publication->has('authorCode')) {
+        if ($publication->has('authorCode') and (strlen($publication->authorCode) > 0)) {
             return $publication->authorCode;
         }
 
@@ -23,7 +23,7 @@ trait CutterCode
 
     private function getTitleFirstChar(Publication $publication): string
     {
-        $language = $this->getLanguage($publication);
+        // $language = $this->getLanguage($publication);
         $title = $this->getTitleAsArray($publication);
 
         return substr($title[0], 0, 1);
@@ -73,18 +73,21 @@ trait CutterCode
 
     private function getLanguage(Publication $publication): string
     {
-        return $publication->has('originalLanguage') ? $publication->originalLanguage : $publication->publicationLanguage;
+        $response = ($publication->has('originalLanguage') and (strlen($publication->originalLanguage) > 0))
+            ? $publication->originalLanguage
+            : $publication->publicationLanguage;
+
+        return $response;
     }
 
     private function getLanguagesTable(string $language): array
     {
         $table = File::readJsonFile('src/infra/database/file/languages.json');
-
         $languages = array_filter($table, function ($lang) use ($language) {
             return $lang['code'] === $language;
         });
 
-        return $languages[0];
+        return array_values($languages)[0];
     }
 
     private function getCutterTable(): array

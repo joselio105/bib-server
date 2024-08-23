@@ -32,7 +32,7 @@ class MustHaveLenght
         ];
 
         return new Validation(
-            $conditions[$condition],
+            $conditions[$condition] or is_null($value),
             new MustHaveLengthEqualsToError("{$attributeName} => {$value}", $length, $condition)
         );
     }

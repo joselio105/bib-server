@@ -57,7 +57,7 @@ class PublicationSchema extends ValidationSchema
             'authorCode' => [
                 IsRequired::make($attributes, 'authorCode'),
                 MustBeString::make($attributes, 'authorCode'),
-                MustBeCutter::make($attributes, 'authors'),
+                MustBeCutter::make($attributes, 'authorCode'),
 
             ],
             'themeCode' => [

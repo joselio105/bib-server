@@ -11,7 +11,6 @@ use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\ValidationSchema;
 use plugse\server\core\app\validation\validations\IsRequired;
 
-// TODO: Publication - hasMany Copies - update
 // TODO: Loan - Validation
 // TODO: Loan - belongsTo User
 // TODO: Loan - belongsTo Copy -> Publication
@@ -39,6 +38,7 @@ abstract class AbstractController
         IsRequired::make($request->params, 'query')->validate();
 
         $found = $this->uses->findManyByQuery($request->params['query']);
+
         $response = [];
         foreach ($found as $entity) {
             $this->entity = $entity;

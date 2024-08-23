@@ -14,10 +14,8 @@ class MusBeAuthorList
             : [];
         $values = implode('; ', $value);
 
-        $condition = false;
-
         return new Validation(
-            self::getCondition($value),
+            self::getCondition($value) or empty($values),
             new MustBeAuthorsError("{$attributeName} => {$values}")
         );
         foreach ($value as $author) {

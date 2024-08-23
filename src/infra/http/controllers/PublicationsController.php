@@ -38,6 +38,7 @@ class PublicationsController extends AbstractController
     protected function setEntityStored(int $id, array $body = []): void
     {
         parent::setEntityStored($id, $body);
+        $this->entity->unset('copyList');
 
         $this->entity->authorCode = $this->getCutterCode($this->entity);
         $this->entity->updatedBy = $this->getAuthUserId();
@@ -47,8 +48,8 @@ class PublicationsController extends AbstractController
     {
         $mapper = new PublicationMapper($this->entity);
 
-        if ($this->entity->has('copies')) {
-            $mapper->setCopies($this->entity->copies);
+        if ($this->entity->has('copyList')) {
+            $mapper->setCopies($this->entity->copyList);
         }
 
         return $mapper->__serialize();

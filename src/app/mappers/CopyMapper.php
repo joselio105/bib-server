@@ -2,9 +2,9 @@
 
 namespace plugse\server\app\mappers;
 
-use plugse\server\app\entities\Publication;
 use plugse\server\app\entities\User;
 use plugse\server\core\app\mappers\Mapper;
+use plugse\server\app\entities\Publication;
 
 class CopyMapper extends Mapper
 {

@@ -21,7 +21,7 @@ class MustBeCutter
                         'regexp' => $pattern,
                     ],
                 ]
-            ),
+            ) === $value,
             new MustBeCutterError("{$attributeName} => {$value}")
         );
     }

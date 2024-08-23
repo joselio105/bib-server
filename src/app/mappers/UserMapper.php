@@ -9,13 +9,12 @@ class UserMapper extends Mapper
 {
     public function __construct(User $user)
     {
-        $this->attributes = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'isAdmin' => $user->isAdmin === '1',
-            'isActive' => $user->isActive === '1',
-        ];
+        parent::__construct($user);
+        if (key_exists('isAdmin', $this->attributes)) {
+            $this->attributes['isAdmin'] = $this->attributes['isAdmin'] === '1';
+        }
+        if (key_exists('isActive', $this->attributes)) {
+            $this->attributes['isActive'] = $this->attributes['isActive'] === '1';
+        }
     }
 }

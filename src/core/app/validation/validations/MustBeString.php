@@ -12,7 +12,7 @@ class MustBeString
         $value = key_exists($attributeName, $attributes) ? $attributes[$attributeName] : '';
 
         return new Validation(
-            is_string($value),
+            is_string($value) or is_null($value),
             new MustBeStringError("{$attributeName} => {$value}")
         );
     }

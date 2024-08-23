@@ -23,14 +23,14 @@ class PublicationsModel extends ModelMysql
     protected function setRelations()
     {
         $this->relations = [
-            'copies' => new HasMany('publicationId', new CopyModel()),
+            'copyList' => new HasMany('publicationId', new CopyModel()),
         ];
     }
 
     public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
     {
         $entity = parent::findOne($whereClauses, $values, $fields);
-        $entity = (new RelationHasMany($this))->hasManyOnEntity('copies', $entity);
+        $entity = (new RelationHasMany($this))->hasManyOnEntity('copyList', $entity);
 
         return $entity;
     }
