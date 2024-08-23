@@ -65,6 +65,7 @@ abstract class AbstractController
         $this->validate($request->body);
 
         $response = $this->uses->create($this->entity);
+        $this->entity = $response;
 
         return new Response(
             $this->getMapper($response),
@@ -80,6 +81,7 @@ abstract class AbstractController
         $this->validate($this->entity->getAttributes());
 
         $response = $this->uses->update($request->params['id'], $this->entity);
+        $this->entity = $response;
 
         return new Response(
             $this->getMapper($response)
@@ -134,13 +136,9 @@ abstract class AbstractController
 
     protected function getMapper(): array
     {
-        $this->setMapper();
+        $mapperName = $this->entity->getMapper();
+        $this->mapper = new $mapperName($this->entity);
 
         return $this->mapper->__serialize();
-    }
-
-    protected function setMapper()
-    {
-        $this->mapper = new Mapper($this->entity);
     }
 }

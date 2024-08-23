@@ -16,7 +16,6 @@ abstract class Mapper
         foreach ($entity->getAttributes() as $key => $value) {
             if (!(is_object($value) or is_array($value))) {
                 $this->setValue($key);
-                var_dump($value);
             }
         }
     }

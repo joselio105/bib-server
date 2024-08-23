@@ -3,7 +3,6 @@
 namespace plugse\server\infra\http\controllers;
 
 use plugse\server\infra\traits\CutterCode;
-use plugse\server\app\entities\Publication;
 use plugse\server\app\uses\PublicationUses;
 use plugse\server\app\mappers\PublicationMapper;
 use plugse\server\infra\database\mysql\PublicationsModel;
@@ -18,11 +17,6 @@ class PublicationsController extends AbstractController
         $model = new PublicationsModel();
         $this->entityName = $model->getEntity();
         $this->uses = new PublicationUses($model);
-    }
-
-    protected function setEntityName()
-    {
-        $this->entityName = get_class(new Publication());
     }
 
     protected function setEntity(array $body): void
