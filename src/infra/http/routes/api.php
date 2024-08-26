@@ -2,6 +2,7 @@
 
 use plugse\server\core\infra\http\routes\GroupedRoutes;
 use plugse\server\infra\http\controllers\CopyController;
+use plugse\server\infra\http\controllers\LoanController;
 use plugse\server\infra\http\middlewares\AuthMiddleware;
 use plugse\server\infra\http\controllers\UsersController;
 use plugse\server\infra\http\controllers\PublicationsController;
@@ -30,6 +31,12 @@ return [
         ->addRoute('code/:code', 'GET', 'findOneByCode')
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
-        ->addRoute('', 'POST', 'create', [AuthMiddleware::class])
+        ->addRoute('', 'POST', 'create')//, [AuthMiddleware::class])
         ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
+    (new GroupedRoutes())
+        ->setPrefix('loans')
+        ->setController(LoanController::class)
+        // ->setMiddleware(AuthMiddleware::class)
+        ->addRoute(':id', 'GET', 'show')
+        ->addRoute('', 'POST', 'create'),
 ];

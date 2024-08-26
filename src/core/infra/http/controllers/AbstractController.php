@@ -62,9 +62,11 @@ abstract class AbstractController
     public function create(Request $request): Response
     {
         $this->setEntity($request->body);
-        $this->validate($request->body);
+        $this->validate($this->entity->getAttributes());
 
         $response = $this->uses->create($this->entity);
+        // var_dump($response);
+        // die(json_encode($response->getAttributes()));
         $this->entity = $response;
 
         return new Response(
@@ -106,6 +108,17 @@ abstract class AbstractController
         return date('Y-m-d H:i:s');
     }
 
+    protected function setTimestamp()
+    {
+        $this->entity->createdAt = $this->getNow();
+    }
+
+    protected function setUser()
+    {
+        $this->entity->createdBy = $this->getAuthUserId();
+        $this->entity->updatedBy = $this->getAuthUserId();
+    }
+
     protected function validate(array $body): void
     {
         $validation = $this->entity->getValidation($body);
@@ -123,6 +136,9 @@ abstract class AbstractController
         foreach ($body as $key => $value) {
             $this->entity->$key = $value;
         }
+
+        $this->setTimestamp();
+        $this->setUser();
     }
 
     protected function setEntityStored(int $id, array $body = []): void

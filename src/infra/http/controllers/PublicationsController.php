@@ -24,9 +24,6 @@ class PublicationsController extends AbstractController
         parent::setEntity($body);
 
         $this->entity->authorCode = $this->getCutterCode($this->entity);
-        $this->entity->createdAt = $this->getNow();
-        $this->entity->createdBy = $this->getAuthUserId();
-        $this->entity->updatedBy = $this->getAuthUserId();
     }
 
     protected function setEntityStored(int $id, array $body = []): void
@@ -35,7 +32,6 @@ class PublicationsController extends AbstractController
         $this->entity->unset('copyList');
 
         $this->entity->authorCode = $this->getCutterCode($this->entity);
-        $this->entity->updatedBy = $this->getAuthUserId();
     }
 
     protected function getMapper(): array

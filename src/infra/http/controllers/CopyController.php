@@ -29,15 +29,6 @@ class CopyController extends AbstractController
         $this->uses = new CopyUses($model);
     }
 
-    protected function setEntity(array $body): void
-    {
-        parent::setEntity($body);
-
-        $this->entity->createdAt = $this->getNow();
-        $this->entity->createdBy = $this->getAuthUserId();
-        $this->entity->updatedBy = $this->getAuthUserId();
-    }
-
     protected function getMapper(): array
     {
         $mapper = new CopyMapper($this->entity);

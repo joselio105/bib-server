@@ -38,17 +38,18 @@ class Create
         $connection->beginTransaction();
 
         $stmtCreate = $connection->prepare($this->query);
-        $stmtCreate->execute($this->entity->getAttributes());
+        $created = $stmtCreate->execute($this->entity->getAttributes());
 
         $stmtRead = $this->setSubQueries($connection, $subQueries);
         $response = $stmtRead->fetchObject(get_class($this->entity));
 
         $connection->commit();
-        if ($response) {
-            return $response;
+
+        if (!$created) {
+            throw new Exception('Falha ao cadastrar entidade');
         }
 
-        throw new Exception('Falha ao cadastrar entidade');
+        return $response;
     }
 
     public function getQuery()
@@ -59,12 +60,18 @@ class Create
     private function setSubQueries(PDO $connection, array $subQueries)
     {
         $connection->query('SET @last_id = LAST_INSERT_ID();');
+        $queryFind = array_pop($subQueries) . 'id=@last_id;';
+
         foreach ($subQueries as $query) {
             $connection->query($query);
         }
-        $stmtRead = $connection->query("SELECT * FROM {$this->tablename} WHERE id=@last_id;");
+        $stmtRead = $connection->query($queryFind);
 
-        return $stmtRead;
+        if ($stmtRead) {
+            return $stmtRead;
+        }
+
+        throw new Exception("{$queryFind}\n" . 'Falha ao ler entidade cadastrada');
     }
 
     private function getFieldsToCreate(): string

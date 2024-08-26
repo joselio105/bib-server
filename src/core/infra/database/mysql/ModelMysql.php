@@ -52,6 +52,11 @@ abstract class ModelMysql implements Model
         $this->relations = [];
     }
 
+    protected function formatEntity(Entity $entity): Entity
+    {
+        return $entity;
+    }
+
     public function getTableName(): string
     {
         $table_prefix = $this->dbSettings['prefix'];
@@ -96,6 +101,7 @@ abstract class ModelMysql implements Model
     public function create(Entity $entity, array $subqueries = []): Entity
     {
         $entity = $this->hash($entity);
+        array_push($subqueries, $this->buildQueryRead('', [])->getQuery() . " {$this->getTableName()}.");
 
         try {
             $create = new Create();
@@ -104,7 +110,7 @@ abstract class ModelMysql implements Model
                 $entity
             )->run($this->connection, $subqueries);
 
-            return $response;
+            return $this->formatEntity($response);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -122,7 +128,7 @@ abstract class ModelMysql implements Model
                 $id
             )->run();
 
-            return $response;
+            return $this->formatEntity($response);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -133,7 +139,10 @@ abstract class ModelMysql implements Model
         try {
             $read = $this->buildQueryRead($whereClauses, $values, $fields);
             $stmt = $read->run($values);
-            $response = $read->fetchMany($stmt, $this->entity);
+            $response = [];
+            foreach ($read->fetchMany($stmt, $this->entity) as $entity) {
+                array_push($response, $this->formatEntity($entity));
+            }
 
             return $response;
         } catch (\Throwable $th) {

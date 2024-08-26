@@ -10,7 +10,6 @@ use plugse\server\core\infra\database\mysql\Read;
 use plugse\server\core\infra\database\mysql\InnerJoin;
 use plugse\server\core\infra\database\mysql\ModelMysql;
 use plugse\server\core\infra\database\relations\HasMany;
-use plugse\server\core\infra\database\relations\RelationHasMany;
 use plugse\server\core\infra\database\relations\RelationsBelongsTo;
 
 class CopyModel extends ModelMysql
@@ -28,16 +27,16 @@ class CopyModel extends ModelMysql
     protected function setRelations()
     {
         $this->relations = [
-            'loans' => new HasMany('copyId', new LoanModel),
+            'loans' => new HasMany('copyId', new LoanModel()),
         ];
     }
 
 
     protected function buildQueryRead(string $whereClauses, array $values, string $fields = '*'): Read
     {
-        $publicationsModel = new PublicationsModel;
-            $publicationTable = $publicationsModel->getTableName();
-            $userModel = new UserModel;
+        $publicationsModel = new PublicationsModel();
+        $publicationTable = $publicationsModel->getTableName();
+        $userModel = new UserModel();
 
         $read = parent::buildQueryRead($whereClauses, $values);
         $read->setFields([
@@ -86,29 +85,12 @@ class CopyModel extends ModelMysql
         return $read;
     }
 
-    public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
+    protected function formatEntity(Entity $entity): Entity
     {
-        $response = parent::findOne($whereClauses, $values);
-        $response = (new RelationHasMany($this))->hasManyOnEntity('loans', $response);
-        $response = (new RelationsBelongsTo($response, 'pub_', new Publication))->get('publication');
-        $response = (new RelationsBelongsTo($response, 'creator_', new User))->get('createdBy');
-        $response = (new RelationsBelongsTo($response, 'updator_', new User))->get('updatedBy');
+        $entity = (new RelationsBelongsTo($entity, 'pub_', new Publication()))->get('publication');
+        $entity = (new RelationsBelongsTo($entity, 'creator_', new User()))->get('createdBy');
+        $entity = (new RelationsBelongsTo($entity, 'updator_', new User()))->get('updatedBy');
 
-        return $response;
-    }
-
-    public function findMany(string $whereClauses, array $values, string $fields = '*'): array
-    {
-        $responses = [];
-
-        foreach(parent::findMany($whereClauses, $values) as $entity){            
-            $entity = (new RelationsBelongsTo($entity, 'pub_', new Publication))->get('publication');
-            $entity = (new RelationsBelongsTo($entity, 'creator_', new User))->get('createdBy');
-            $entity = (new RelationsBelongsTo($entity, 'updator_', new User))->get('updatedBy');
-
-            array_push($responses, $entity);
-        }
-
-        return $responses;
+        return $entity;
     }
 }

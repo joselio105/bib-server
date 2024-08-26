@@ -31,10 +31,10 @@ trait CutterCode
 
     private function getAuthorCode(Publication $publication): string
     {
-        $nameArray = $publication->has('authors') ? explode('; ', $publication->authors) : $this->getTitleAsArray($publication);
-        $firstChar = strtoupper(substr($nameArray[0], 0, 1));
+        [$name] = ($publication->has('authors') and (strlen($publication->authors) > 0)) ? explode('; ', $publication->authors) : $this->getTitleAsArray($publication);
+        $firstChar = strtoupper(substr($name, 0, 1));
 
-        return $firstChar . $this->findCode($nameArray[0]);
+        return $firstChar . $this->findCode(ucfirst($name));
     }
 
     private function findCode(string $name): string
@@ -47,7 +47,7 @@ trait CutterCode
 
         $length = 0;
 
-        return array_reduce($response, function ($carry, $item) use ($length) {
+        $response = array_reduce($response, function ($carry, $item) use ($length) {
             $carry = strlen($item['string']);
             if ($carry >= $length) {
                 return $item['code'];
@@ -55,6 +55,8 @@ trait CutterCode
 
             $length = $carry;
         });
+
+        return $response;
     }
 
     private function getTitleAsArray(Publication $publication): array
