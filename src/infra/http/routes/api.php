@@ -22,14 +22,14 @@ return [
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create', [AuthMiddleware::class])
-        ->addRoute(':id', 'put', 'update')//, [AuthMiddleware::class])
+        ->addRoute(':id', 'put', 'update', [AuthMiddleware::class])
         ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
     (new GroupedRoutes())
         ->setPrefix('copies')
         ->setController(CopyController::class)
+        ->addRoute('code/:code', 'GET', 'findOneByCode')
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
-        ->addRoute('', 'POST', 'create')//, [AuthMiddleware::class])
-        ->addRoute(':id', 'put', 'update', [AuthMiddleware::class])
+        ->addRoute('', 'POST', 'create', [AuthMiddleware::class])
         ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
 ];
