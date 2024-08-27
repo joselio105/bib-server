@@ -16,6 +16,7 @@ abstract class ModelMysql implements Model
     private PDO $connection;
     protected string $tableName;
     protected string $primaryKey;
+    protected array $fields;
     public array $relations;
     protected array $indexUniques;
     protected string $entity;
@@ -27,6 +28,7 @@ abstract class ModelMysql implements Model
         $this->dbSettings = File::getProperty(SETTINGS_FILE, 'db');
         $this->setTableName();
         $this->setPrimaryKey();
+        $this->setFields();
         $this->connection = Connection::getInstance($this->dbSettings);
         $this->setEntity();
         $this->setHashes();
@@ -45,6 +47,11 @@ abstract class ModelMysql implements Model
     protected function setPrimaryKey()
     {
         $this->primaryKey = 'id';
+    }
+
+    protected function setFields()
+    {
+        $this->fields = [];
     }
 
     protected function setRelations()
@@ -119,14 +126,15 @@ abstract class ModelMysql implements Model
     public function update(string $id, Entity $entity): Entity
     {
         $entity = $this->hash($entity);
+        $query = "{$this->buildQueryRead('', [])->getQuery()} {$this->getTableName()}.";
 
         try {
             $update = new Update($this->connection);
             $response = $update->setQuery(
                 $this->getTableName(),
-                $entity,
+                $this->getValues($entity),
                 $id
-            )->run();
+            )->run($query, $this->entity);
 
             return $this->formatEntity($response);
         } catch (\Throwable $th) {
@@ -182,15 +190,25 @@ abstract class ModelMysql implements Model
         }
     }
 
-    protected function buildQueryRead(string $whereClauses, array $values, string $fields = '*'): Read
+    protected function buildQueryRead(string $whereClauses, array $values = []): Read
     {
-        $fields = $fields === '*' ? [] : explode(', ', $fields);
         $read = (new Read($this->connection))
             ->setTablename($this->getTableName())
-            ->setFields($fields)
+            ->setFields($this->fields)
             ->setWhereClauses($whereClauses);
 
         return $read;
+    }
+
+    private function getValues(Entity $entity): array
+    {
+        $response = [];
+
+        foreach (array_values($this->fields) as $field) {
+            $response[$field] = $entity->$field;
+        }
+
+        return $response;
     }
 
     private function hash(Entity $entity)

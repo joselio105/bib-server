@@ -46,7 +46,7 @@ class Create
         $connection->commit();
 
         if (!$created) {
-            throw new Exception('Falha ao cadastrar entidade');
+            throw new Exception($stmtCreate->errorInfo()[2]);
         }
 
         return $response;

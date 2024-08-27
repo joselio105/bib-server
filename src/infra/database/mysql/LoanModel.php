@@ -24,13 +24,9 @@ class LoanModel extends ModelMysql
         $this->tableName = 'loan';
     }
 
-    protected function buildQueryRead(string $whereClauses, array $values, string $fields = '*'): Read
+    protected function setFields()
     {
-        $userModel = new UserModel();
-        $copyModel = new CopyModel();
-
-        $read = parent::buildQueryRead($whereClauses, $values);
-        $read->setFields([
+        $this->fields = [
             'loan.id' => 'id',
             'loan.userId' => 'userId',
             'loan.copyId' => 'copyId',
@@ -41,7 +37,16 @@ class LoanModel extends ModelMysql
             'loan.updatedBy' => 'updatedBy',
             'loan.createdAt' => 'createdAt',
             'loan.updatedAt' => 'updatedAt',
-        ])
+        ];
+    }
+
+    protected function buildQueryRead(string $whereClauses, array $values = []): Read
+    {
+        $userModel = new UserModel();
+        $copyModel = new CopyModel();
+
+        $read = parent::buildQueryRead($whereClauses);
+        $read
         ->setInnerJoin(new InnerJoin(
             $userModel,
             $this->getTableName() . '.userId',

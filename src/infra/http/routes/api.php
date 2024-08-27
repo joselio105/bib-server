@@ -38,5 +38,6 @@ return [
         ->setController(LoanController::class)
         // ->setMiddleware(AuthMiddleware::class)
         ->addRoute(':id', 'GET', 'show')
-        ->addRoute('', 'POST', 'create'),
+        ->addRoute('', 'POST', 'create')
+        ->addRoute(':id', 'PUT', 'update'),
 ];

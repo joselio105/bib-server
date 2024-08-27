@@ -31,15 +31,9 @@ class CopyModel extends ModelMysql
         ];
     }
 
-
-    protected function buildQueryRead(string $whereClauses, array $values, string $fields = '*'): Read
+    protected function setFields()
     {
-        $publicationsModel = new PublicationsModel();
-        $publicationTable = $publicationsModel->getTableName();
-        $userModel = new UserModel();
-
-        $read = parent::buildQueryRead($whereClauses, $values);
-        $read->setFields([
+        $this->fields = [
             'copy.id' => 'id',
             'copy.registrationCode' => 'registrationCode',
             'copy.publicationId' => 'publication',
@@ -47,7 +41,18 @@ class CopyModel extends ModelMysql
             'copy.createdBy' => 'createdBy',
             'copy.updatedAt' => 'updatedAt',
             'copy.updatedBy' => 'updatedBy',
-        ])
+        ];
+    }
+
+
+    protected function buildQueryRead(string $whereClauses, array $values = []): Read
+    {
+        $publicationsModel = new PublicationsModel();
+        $publicationTable = $publicationsModel->getTableName();
+        $userModel = new UserModel();
+
+        $read = parent::buildQueryRead($whereClauses, $values);
+        $read
         ->setInnerJoin(new InnerJoin(
             $publicationsModel,
             $this->getTableName() . '.publicationId',

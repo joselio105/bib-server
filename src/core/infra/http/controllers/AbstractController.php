@@ -11,10 +11,6 @@ use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\ValidationSchema;
 use plugse\server\core\app\validation\validations\IsRequired;
 
-// TODO: Loan - Validation
-// TODO: Loan - belongsTo User
-// TODO: Loan - belongsTo Copy -> Publication
-
 // TODO: User - hasMany Loans
 // TODO: Campos únicos...
 
@@ -65,8 +61,6 @@ abstract class AbstractController
         $this->validate($this->entity->getAttributes());
 
         $response = $this->uses->create($this->entity);
-        // var_dump($response);
-        // die(json_encode($response->getAttributes()));
         $this->entity = $response;
 
         return new Response(
@@ -122,7 +116,6 @@ abstract class AbstractController
     protected function validate(array $body): void
     {
         $validation = $this->entity->getValidation($body);
-
         foreach ($validation as $schemas) {
             foreach ($schemas as $schema) {
                 $schema->validate();
