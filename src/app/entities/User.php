@@ -18,7 +18,6 @@ class User extends Entity
     public function __set($name, $value)
     {
         if (in_array($name, ['isAdmin', 'isActive'])) {
-            // die($name . ' = ' . $value . ' => ' . ($value === '1' ? 'string' : 'número'));
             $this->attributes[$name] = ($value === '1');
         } else {
             parent::__set($name, $value);

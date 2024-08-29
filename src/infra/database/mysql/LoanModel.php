@@ -4,8 +4,8 @@ namespace plugse\server\infra\database\mysql;
 
 use plugse\server\app\entities\Copy;
 use plugse\server\app\entities\Loan;
-use plugse\server\app\entities\Publication;
 use plugse\server\app\entities\User;
+use plugse\server\app\entities\Publication;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\mysql\Read;
 use plugse\server\core\infra\database\mysql\InnerJoin;
@@ -40,7 +40,7 @@ class LoanModel extends ModelMysql
         ];
     }
 
-    protected function buildQueryRead(string $whereClauses, array $values = []): Read
+    protected function buildQueryRead(string $whereClauses, array $values = [], array $fields = []): Read
     {
         $userModel = new UserModel();
         $copyModel = new CopyModel();
@@ -85,24 +85,14 @@ class LoanModel extends ModelMysql
                 'COPY.registrationCode' => 'copy_registrationCode',
             ],
             'COPY'
-        ))
-        ->setInnerJoin(new InnerJoin(
-            new PublicationsModel(),
-            $copyModel->getTableName() . '.publicationId',
-            [
-                'PUB.id' => 'publication_id',
-                'PUB.title' => 'publication_title',
-                'PUB.authorCode' => 'publication_authorCode',
-                'PUB.authors' => 'publication_authors',
-            ],
-            'PUB'
         ));
 
         return $read;
     }
 
-    protected function formatEntity(Entity $entity): Entity
+    protected function formatFindOne(Entity $entity): Entity
     {
+        $entity = parent::formatFindOne($entity);
         $entity = (new RelationsBelongsTo($entity, 'creator_', new User()))->get('createdBy');
         $entity = (new RelationsBelongsTo($entity, 'updator_', new User()))->get('updatedBy');
         $entity = (new RelationsBelongsTo($entity, 'user_', new User()))->get('user');
@@ -110,5 +100,10 @@ class LoanModel extends ModelMysql
         $entity = (new RelationsBelongsTo($entity, 'publication_', new Publication()))->get('publication');
 
         return $entity;
+    }
+
+    protected function formatFindMany(Entity $entity): Entity
+    {
+        return $this->formatFindOne($entity);
     }
 }

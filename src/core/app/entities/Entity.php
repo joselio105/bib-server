@@ -21,7 +21,11 @@ abstract class Entity
 
     public function __set($name, $value)
     {
-        $this->attributes[$name] = $value;
+        if ($name === 'id') {
+            $this->attributes[$name] = intval($value);
+        } else {
+            $this->attributes[$name] = $value;
+        }
     }
 
     public function has(string $attribute): bool

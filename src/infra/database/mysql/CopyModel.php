@@ -10,6 +10,7 @@ use plugse\server\core\infra\database\mysql\Read;
 use plugse\server\core\infra\database\mysql\InnerJoin;
 use plugse\server\core\infra\database\mysql\ModelMysql;
 use plugse\server\core\infra\database\relations\HasMany;
+use plugse\server\core\infra\database\relations\RelationHasMany;
 use plugse\server\core\infra\database\relations\RelationsBelongsTo;
 
 class CopyModel extends ModelMysql
@@ -22,13 +23,6 @@ class CopyModel extends ModelMysql
     protected function setTableName(): void
     {
         $this->tableName = 'copy';
-    }
-
-    protected function setRelations()
-    {
-        $this->relations = [
-            'loans' => new HasMany('copyId', new LoanModel()),
-        ];
     }
 
     protected function setFields()
@@ -45,26 +39,27 @@ class CopyModel extends ModelMysql
     }
 
 
-    protected function buildQueryRead(string $whereClauses, array $values = []): Read
+    protected function buildQueryRead(string $whereClauses, array $values = [], array $fields = []): Read
     {
         $publicationsModel = new PublicationsModel();
         $publicationTable = $publicationsModel->getTableName();
         $userModel = new UserModel();
 
-        $read = parent::buildQueryRead($whereClauses, $values);
+        $read = parent::buildQueryRead($whereClauses);
         $read
         ->setInnerJoin(new InnerJoin(
             $publicationsModel,
             $this->getTableName() . '.publicationId',
             [
-                "{$publicationTable}.id" => 'pub_id',
-                "{$publicationTable}.title" => 'pub_title',
-                "{$publicationTable}.originalTitle" => 'pub_originalTitle',
-                "{$publicationTable}.subTitle" => 'pub_subTitle',
-                "{$publicationTable}.subjects" => 'pub_subjects',
-                "{$publicationTable}.authors" => 'pub_authors',
-                "{$publicationTable}.themeCode" => 'pub_themeCode',
-            ]
+                'PUB.id' => 'pub_id',
+                'PUB.title' => 'pub_title',
+                'PUB.originalTitle' => 'pub_originalTitle',
+                'PUB.subTitle' => 'pub_subTitle',
+                'PUB.subjects' => 'pub_subjects',
+                'PUB.authors' => 'pub_authors',
+                'PUB.themeCode' => 'pub_themeCode',
+            ],
+            'PUB'
         ))
         ->setInnerJoin(new InnerJoin(
             $userModel,
@@ -90,8 +85,17 @@ class CopyModel extends ModelMysql
         return $read;
     }
 
-    protected function formatEntity(Entity $entity): Entity
+    protected function formatFindOne(Entity $entity): Entity
     {
+        $entity = $this->formatFindMany($entity);
+        $entity = (new RelationHasMany($entity))->hasManyOnEntity(new HasMany('copyId', new LoanModel()), 'loans');
+
+        return $entity;
+    }
+
+    protected function formatFindMany(Entity $entity): Entity
+    {
+        $entity = parent::formatFindMany($entity);
         $entity = (new RelationsBelongsTo($entity, 'pub_', new Publication()))->get('publication');
         $entity = (new RelationsBelongsTo($entity, 'creator_', new User()))->get('createdBy');
         $entity = (new RelationsBelongsTo($entity, 'updator_', new User()))->get('updatedBy');

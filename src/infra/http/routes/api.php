@@ -16,15 +16,15 @@ return [
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create')
         ->addRoute(':id', 'put', 'update')
-        ->addRoute(':id', 'delete', 'delete'),
+        // ->addRoute(':id', 'delete', 'delete'),
     (new GroupedRoutes())
         ->setPrefix('publications')
         ->setController(PublicationsController::class)
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
-        ->addRoute('', 'POST', 'create', [AuthMiddleware::class])
-        ->addRoute(':id', 'put', 'update', [AuthMiddleware::class])
-        ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
+        ->addRoute('', 'POST', 'create')//, [AuthMiddleware::class])
+        ->addRoute(':id', 'put', 'update')//, [AuthMiddleware::class])
+        // ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
     (new GroupedRoutes())
         ->setPrefix('copies')
         ->setController(CopyController::class)
@@ -32,11 +32,11 @@ return [
         ->addRoute('query/:query', 'GET', 'index')
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create')//, [AuthMiddleware::class])
-        ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
+        // ->addRoute(':id', 'delete', 'delete', [AuthMiddleware::class]),
     (new GroupedRoutes())
         ->setPrefix('loans')
         ->setController(LoanController::class)
-        // ->setMiddleware(AuthMiddleware::class)
+        ->setMiddleware(AuthMiddleware::class)
         ->addRoute(':id', 'GET', 'show')
         ->addRoute('', 'POST', 'create')
         ->addRoute(':id', 'PUT', 'update'),

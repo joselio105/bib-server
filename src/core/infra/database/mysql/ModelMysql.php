@@ -2,13 +2,12 @@
 
 namespace plugse\server\core\infra\database\mysql;
 
+use Exception;
 use PDO;
 use plugse\server\core\helpers\File;
 use plugse\server\core\helpers\Crypto;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\database\Model;
-use plugse\server\core\errors\ArrayKeyNotFoundError;
-use plugse\server\core\infra\database\relations\HasMany;
 
 abstract class ModelMysql implements Model
 {
@@ -17,7 +16,6 @@ abstract class ModelMysql implements Model
     protected string $tableName;
     protected string $primaryKey;
     protected array $fields;
-    public array $relations;
     protected array $indexUniques;
     protected string $entity;
     protected string $mapper;
@@ -32,7 +30,6 @@ abstract class ModelMysql implements Model
         $this->connection = Connection::getInstance($this->dbSettings);
         $this->setEntity();
         $this->setHashes();
-        $this->setRelations();
     }
 
     abstract protected function setTableName(): void;
@@ -54,11 +51,6 @@ abstract class ModelMysql implements Model
         $this->fields = [];
     }
 
-    protected function setRelations()
-    {
-        $this->relations = [];
-    }
-
     protected function formatEntity(Entity $entity): Entity
     {
         return $entity;
@@ -67,7 +59,6 @@ abstract class ModelMysql implements Model
     public function getTableName(): string
     {
         $table_prefix = $this->dbSettings['prefix'];
-        ;
 
         return "{$table_prefix}{$this->tableName}";
     }
@@ -80,24 +71,6 @@ abstract class ModelMysql implements Model
     public function getEntity(): string
     {
         return $this->entity;
-    }
-
-    public function getRelations(string $type): array
-    {
-        return array_filter($this->relations, function ($relation) use ($type) {
-            return get_class($relation) === $type;
-        });
-    }
-
-    public function getRelationHasMany(string $field): HasMany
-    {
-        $relations = $this->getRelations(HasMany::class);
-
-        if (key_exists($field, $relations)) {
-            return $relations[$field];
-        }
-
-        throw new ArrayKeyNotFoundError($field, 'Model::relations');
     }
 
     public function clearTable()
@@ -142,39 +115,28 @@ abstract class ModelMysql implements Model
         }
     }
 
-    public function findMany(string $whereClauses, array $values, string $fields = '*'): array
+    public function findOne(string $whereClauses = '1', array $values = [], array $fields = []): Entity
     {
-        try {
-            $read = $this->buildQueryRead($whereClauses, $values, $fields);
-            $stmt = $read->run($values);
-            $response = [];
-            foreach ($read->fetchMany($stmt, $this->entity) as $entity) {
-                array_push($response, $this->formatEntity($entity));
-            }
+        $read = $this->buildQueryRead($whereClauses, $values, $fields);
+        $stmt = $read->run($values);
 
-            return $response;
-        } catch (\Throwable $th) {
-            throw $th;
+        $response = $read->fetchOne($stmt, $this->entity);
+
+        if (!$response) {
+            throw new Exception($stmt->errorInfo()[2]);
         }
+
+        return $this->formatFindOne($response);
     }
 
-    public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
+    public function findMany(string $whereClauses = '1', array $values = [], array $fields = []): array
     {
-        try {
-            $read = $this->buildQueryRead($whereClauses, $values, $fields);
-            $stmt = $read->run($values);
-            $response = $read->fetchOne($stmt, $this->entity);
+        $read = $this->buildQueryRead($whereClauses, $values, $fields);
+        $stmt = $read->run($values);
 
-            if ($response) {
-                return $response;
-            }
+        $response = $read->fetchMany($stmt, $this->entity);
 
-            $emptyEntity = new $this->entity();
-
-            return $emptyEntity;
-        } catch (\Throwable $th) {
-            throw $th;
-        }
+        return $this->formatAllEntities($response);
     }
 
     public function count(string $whereClauses, array $values = [], string $field = 'id'): int
@@ -190,14 +152,36 @@ abstract class ModelMysql implements Model
         }
     }
 
-    protected function buildQueryRead(string $whereClauses, array $values = []): Read
+    protected function buildQueryRead(string $whereClauses, array $values = [], array $fields = []): Read
     {
-        $read = (new Read($this->connection))
+        $read = new Read($this->connection);
+        $read
             ->setTablename($this->getTableName())
-            ->setFields($this->fields)
+            ->setFields(empty($fields) ? $this->fields : $fields)
             ->setWhereClauses($whereClauses);
 
         return $read;
+    }
+
+    protected function formatFindOne(Entity $entity): Entity
+    {
+        return $entity;
+    }
+
+    protected function formatFindMany(Entity $entity): Entity
+    {
+        return $entity;
+    }
+
+    private function formatAllEntities(array $entities): array
+    {
+        $response = [];
+
+        foreach ($entities as $entity) {
+            array_push($response, $this->formatFindMany($entity));
+        }
+
+        return $response;
     }
 
     private function getValues(Entity $entity): array

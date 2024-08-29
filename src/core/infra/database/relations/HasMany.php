@@ -8,12 +8,12 @@ class HasMany
 {
     public string $foreignKey;
     public Model $model;
-    public string $fields = '*';
+    public array $fields;
 
     public function __construct(
         string $foreignKey,
         Model $model,
-        string $fields = '*'
+        array $fields = []
     ) {
         $this->foreignKey = $foreignKey;
         $this->model = $model;

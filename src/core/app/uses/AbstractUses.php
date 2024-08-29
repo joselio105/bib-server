@@ -4,8 +4,8 @@ namespace plugse\server\core\app\uses;
 
 use Exception;
 use plugse\server\core\app\entities\Entity;
-use plugse\server\core\errors\EntityNotFoundError;
 use plugse\server\core\infra\database\Model;
+use plugse\server\core\errors\EntityNotFoundError;
 
 abstract class AbstractUses
 {

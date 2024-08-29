@@ -10,12 +10,12 @@ interface Model
     public function getPrimaryKey(): string;
     public function getTableName(): string;
     public function getEntity(): string;
-    public function getRelations(string $type): array;
-    public function getRelationHasMany(string $field): HasMany;
+    // public function getRelations(string $type): array;
+    // public function getRelationHasMany(string $field): HasMany;
 
     public function clearTable();
-    public function findMany(string $whereClauses, array $values, string $fields = '*'): array;
-    public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity;
+    public function findMany(string $whereClauses, array $values, array $fields = []): array;
+    public function findOne(string $whereClauses, array $values, array $fields = []): Entity;
     public function count(string $whereClauses, array $values = []): int;
     public function create(Entity $entity, array $subqueries = []): Entity;
     public function update(string $id, Entity $entity): Entity;

@@ -11,9 +11,6 @@ use plugse\server\core\app\uses\AbstractUses;
 use plugse\server\core\app\validation\ValidationSchema;
 use plugse\server\core\app\validation\validations\IsRequired;
 
-// TODO: User - hasMany Loans
-// TODO: Campos únicos...
-
 abstract class AbstractController
 {
     protected AbstractUses $uses;

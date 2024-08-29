@@ -3,42 +3,40 @@
 namespace plugse\server\core\infra\database\relations;
 
 use plugse\server\core\app\entities\Entity;
-use plugse\server\core\infra\database\mysql\ModelMysql;
 
 class RelationHasMany
 {
-    private ModelMysql $model;
+    private Entity $entity;
     private string $foreignKey;
     private string $primaryKey;
 
-    public function __construct(ModelMysql $model)
+    public function __construct(Entity $entity)
     {
-        $this->model = $model;
+        $this->entity = $entity;
     }
 
-    public function hasManyOnEntity(string $field, Entity $entity): Entity
+    public function hasManyOnEntity(HasMany $relation, string $fieldName): Entity
     {
-        $relation = $this->model->getRelationHasMany($field);
         $this->primaryKey = $relation->model->getPrimaryKey();
         $this->foreignKey = $relation->foreignKey;
 
-        if (!$entity->has($this->primaryKey)) {
-            return $entity;
+        if (!$this->entity->has($this->primaryKey)) {
+            return $this->entity;
         }
 
         $primaryKey = $this->primaryKey;
         $hasMany = $relation->model->findMany(
-            "{$this->foreignKey}=:{$this->foreignKey}",
-            [":{$this->foreignKey}" => $entity->$primaryKey],
+            "{$relation->model->getTableName()}.{$this->foreignKey}=:{$this->foreignKey}",
+            [$this->foreignKey => $this->entity->$primaryKey],
             $relation->fields
         );
 
-        $entity->$field = $hasMany;
+        $this->entity->$fieldName = $hasMany;
 
-        return $entity;
+        return $this->entity;
     }
 
-    public function hasManyOnArray(string $field, array $entities): array
+    /* public function hasManyOnArray(HasMany $relation, string $fieldName): array
     {
         $relation = $this->model->getRelationHasMany($field);
         $where = $this->getHasManyWhere($entities, $relation);
@@ -86,5 +84,5 @@ class RelationHasMany
             'clauses' => implode(' OR ', $response['clauses']),
             'values' => $response['values'],
         ];
-    }
+    } */
 }

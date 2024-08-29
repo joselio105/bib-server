@@ -20,17 +20,10 @@ class PublicationsModel extends ModelMysql
         $this->entity = Publication::class;
     }
 
-    protected function setRelations()
+    protected function formatFindOne(Entity $entity): Entity
     {
-        $this->relations = [
-            'copyList' => new HasMany('publicationId', new CopyModel()),
-        ];
-    }
-
-    public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
-    {
-        $entity = parent::findOne($whereClauses, $values, $fields);
-        $entity = (new RelationHasMany($this))->hasManyOnEntity('copyList', $entity);
+        $entity = parent::formatFindOne($entity);
+        $entity = (new RelationHasMany($entity))->hasManyOnEntity(new HasMany('publicationId', new CopyModel()), 'copyList');
 
         return $entity;
     }
