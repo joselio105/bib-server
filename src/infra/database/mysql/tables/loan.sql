@@ -1,4 +1,4 @@
-CREATE TABLE `pib-lib`.`loan` (
+CREATE TABLE `loan` (
     `id` INT NOT NULL AUTO_INCREMENT , 
     `copyId` INT NOT NULL , 
     `userId` INT NOT NULL , 

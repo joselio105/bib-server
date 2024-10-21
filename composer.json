@@ -18,13 +18,7 @@
             "./vendor/bin/phpunit tests -v --testdox"
         ]
     },
-    "require-dev": {
-        "pestphp/pest": "^2.34",
-        "pestphp/pest-plugin-drift": "^2.6"
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
-    }
+	"require":{
+        "php": "^7.3"
+	}
 }

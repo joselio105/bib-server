@@ -4,10 +4,9 @@ namespace plugse\server\infra\database\mysql;
 
 use plugse\server\app\entities\Publication;
 use plugse\server\core\app\entities\Entity;
-use plugse\server\core\infra\database\Model;
 use plugse\server\core\infra\database\mysql\ModelMysql;
 use plugse\server\core\infra\database\relations\HasMany;
-use plugse\server\core\infra\database\relations\Relations;
+use plugse\server\core\infra\database\relations\RelationHasMany;
 
 class PublicationsModel extends ModelMysql
 {
@@ -21,17 +20,10 @@ class PublicationsModel extends ModelMysql
         $this->entity = Publication::class;
     }
 
-    protected function setRelations()
+    protected function formatFindOne(Entity $entity): Entity
     {
-        $this->relations = [
-            'copies' => new HasMany('publicationId', new CopyModel),
-        ];
-    }
-
-    public function findOne(string $whereClauses, array $values, string $fields = '*'): Entity
-    {
-        $entity = parent::findOne($whereClauses, $values, $fields);
-        $entity = (new Relations($this))->hasManyOnEntity('copies', $entity);
+        $entity = parent::formatFindOne($entity);
+        $entity = (new RelationHasMany($entity))->hasManyOnEntity(new HasMany('publicationId', new CopyModel()), 'copyList');
 
         return $entity;
     }

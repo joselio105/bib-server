@@ -2,13 +2,12 @@
 
 namespace plugse\server\core\app\validation\exceptions;
 
-use Exception;
+use plugse\server\core\app\validation\ValidationException;
 
-class MustHaveUpperCaseCharsError extends Exception
+class MustHaveUpperCaseCharsError extends ValidationException
 {
     public function __construct(string $name)
     {
-        http_response_code(412);
-        parent::__construct("A variável {$name} deve ter ao menos um caractere maiúsculo");
+        parent::__construct("A variável {$name} deve ter ao menos um caractere maiúsculo", 412);
     }
 }

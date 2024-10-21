@@ -29,6 +29,8 @@ use plugse\server\core\app\entities\Entity;
  * @property updatedAt
  * @property updatedBy
  * @property copies
+ * @property copyList
  */
 class Publication extends Entity
-{}
+{
+}

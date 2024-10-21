@@ -9,14 +9,14 @@ class File
 {
     public static function getFileData(string $filename)
     {
-        if(!file_exists($filename)){
+        if (!file_exists($filename)) {
             throw new FileNotFoundError($filename);
         }
 
-        return require($filename);
+        return require $filename;
     }
 
-    public static function getProperty(string $filename, string $propertyName): string|array
+    public static function getProperty(string $filename, string $propertyName): array
     {
         $settings = self::getFileData($filename);
 
@@ -29,13 +29,13 @@ class File
 
     public static function saveFileData(string $filename, array $content)
     {
-        $contentSave = file_exists($filename) ? self::getFileData($filename):[];
+        $contentSave = file_exists($filename) ? self::getFileData($filename) : [];
 
-        foreach($content as $key=>$value){
+        foreach ($content as $key => $value) {
             $contentSave[$key] = $value;
         }
-        var_dump ($contentSave);
-        file_put_contents($filename, self::arrayToPhpFile($contentSave));        
+        var_dump($contentSave);
+        file_put_contents($filename, self::arrayToPhpFile($contentSave));
     }
 
     private static function arrayToPhpFile(array $content): string
@@ -43,19 +43,19 @@ class File
         $text = "<?php \n return [";
 
 
-        foreach($content as $key=>$value){
-            if(is_string($key)){
+        foreach ($content as $key => $value) {
+            if (is_string($key)) {
                 $text .= "\n\t'{$key}'=>'{$value}',";
             }
         }
 
-        return $text."\n];";   
+        return $text . "\n];";
     }
 
     public static function readJsonFile(string $filename): array
     {
         $content = file_get_contents($filename);
-        if($content){
+        if ($content) {
             return json_decode($content, JSON_OBJECT_AS_ARRAY);
         }
 

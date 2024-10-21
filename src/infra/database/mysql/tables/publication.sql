@@ -1,9 +1,9 @@
-CREATE TABLE `pib-lib`.`publication` (
+CREATE TABLE `publication` (
     `id` INT NOT NULL AUTO_INCREMENT , 
     `title` TEXT NOT NULL , 
     `originalTitle` TEXT NULL , 
     `subTitle` TEXT NULL , 
-    `originalLanguage` VARCHAR(10) NOT NULL , 
+    `originalLanguage` VARCHAR(10) NULL , 
     `publicationLanguage` VARCHAR(10) NOT NULL , 
     `translator` VARCHAR(255) NULL,
     `authors` TEXT NULL , `authorCode` VARCHAR(5) NOT NULL , 

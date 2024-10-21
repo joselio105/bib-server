@@ -4,48 +4,74 @@ namespace plugse\server\core\infra\database\mysql;
 
 use PDO;
 use PDOStatement;
-use plugse\server\core\infra\database\relations\HasMany;
+use plugse\server\app\validations\validations\MustBeForeignKey;
+use plugse\server\core\errors\AttributeClassNotFoundError;
 
 class Read
 {
-    private readonly string $tablename;
-    private string $query;
+    private PDO $connection;
+    private string $tablename;
+    private array $fields;
+    private string $countField;
+    private string $whereClauses;
+    private array $innerJoins;
 
-    public function __construct(private readonly PDO $connection)
-    {}
-
-    public function setQuery(string $tableName, string $whereClauses, string $fields = '*'): Read
+    public function __construct(PDO $connection)
     {
-        $this->tablename = $tableName;        
-        $this->query = "SELECT {$fields} FROM {$this->tablename} WHERE {$whereClauses}";
+        $this->connection = $connection;
+        $this->fields = [];
+        $this->innerJoins = [];
+    }
+
+    public function setTablename(string $tablename): Read
+    {
+        $this->tablename = $tablename;
 
         return $this;
     }
 
-    public function setQueryCount(string $tableName, string $whereClauses, string $field='*'): Read
+    public function setCountField(string $countField): Read
     {
-        $this->tablename = $tableName;        
-        $this->query = "SELECT COUNT({$field}) AS total FROM {$this->tablename} WHERE {$whereClauses}";
+        $this->countField = $countField;
 
         return $this;
     }
 
-    public function getQuery()
+    public function setFields(array $fields): Read
     {
-        return $this->query;
+        $this->fields = $fields;
+
+        return $this;
+    }
+
+    public function setWhereClauses(string $whereClauses): Read
+    {
+        if ($whereClauses === 'id = :id') {
+            $whereClauses = "{$this->tablename}.id = :id";
+        }
+
+        $this->whereClauses = $whereClauses;
+
+        return $this;
+    }
+
+    public function setInnerJoin(InnerJoin $innerJoin): Read
+    {
+        array_push($this->innerJoins, $innerJoin);
+
+        return $this;
     }
 
     public function run(array $values = []): PDOStatement
     {
         try {
-            $stmt = $this->connection->prepare($this->query);
+            $stmt = $this->connection->prepare($this->getQuery());
             $stmt->execute($values);
-            
+
             return $stmt;
         } catch (\Throwable $th) {
             throw $th;
         }
-
     }
 
     public function fetchOne(PDOStatement $stmt, string $entity)
@@ -63,5 +89,77 @@ class Read
     public function fetchCount(PDOStatement $stmt)
     {
         return intval($stmt->fetchObject()->total);
+    }
+
+    public function getQuery(): string
+    {
+        $classname = get_class($this);
+        $originClass = self::class;
+
+        if (!isset($this->tablename)) {
+            throw new AttributeClassNotFoundError('tablename', $classname, $originClass);
+        }
+
+        if (!isset($this->whereClauses)) {
+            throw new AttributeClassNotFoundError('tablename', $classname, $originClass);
+        }
+
+        if (!empty($this->innerJoins) and empty($this->fields)) {
+            throw new AttributeClassNotFoundError('fields', $classname, $originClass);
+        }
+
+        if (isset($this->countField)) {
+            return "SELECT COUNT({$this->countField}) AS total FROM {$this->tablename} WHERE {$this->whereClauses}";
+        }
+
+        $joins = $this->getInnerJoins();
+
+        return "\nSELECT {$this->getFields()} \nFROM {$this->tablename}{$joins}\nWHERE {$this->whereClauses}";
+    }
+
+    private function appendField(InnerJoin $join)
+    {
+        if (empty($this->fields)) {
+            array_push($this->fields, "{$this->tablename}.*");
+        }
+
+        foreach ($join->fields as $field => $label) {
+            MustBeForeignKey::make(['foreignKey' => $field], 'foreignKey')->validate();
+            $this->fields[$field] = $label;
+        }
+    }
+
+    private function getFields(): string
+    {
+        if (empty($this->fields)) {
+            return '*';
+        }
+
+        $response = [];
+
+        foreach ($this->fields as $key => $value) {
+            if (is_string($key)) {
+                array_push($response, "{$key} AS {$value}");
+            } else {
+                array_push($response, $value);
+            }
+        }
+
+        return "\n\t" . implode(",\n\t", $response);
+    }
+
+    private function getInnerJoins(): string
+    {
+        if (empty($this->innerJoins)) {
+            return '';
+        }
+
+        $joins = [];
+        foreach ($this->innerJoins as $join) {
+            $this->appendField($join);
+            array_push($joins, $join);
+        }
+
+        return implode('', $joins);
     }
 }

@@ -8,23 +8,16 @@ use plugse\server\core\infra\http\Request;
 use plugse\server\core\app\entities\Entity;
 use plugse\server\core\infra\http\Response;
 use plugse\server\core\app\uses\AbstractUses;
-use plugse\server\core\app\validation\Validations;
-
-// TODO: Copy - belongsTo User
-// TODO: Copy - belongsTo Publication
-// TODO: Copy - findByQuery on Publication fields
-// TODO: Copy - hasMany Loans
-
-// TODO: Loan - Validation
-// TODO: Loan - belongsTo User
-// TODO: Loan - belongsTo Copy -> Publication
-
-// TODO: User - hasMany Loans
-// TODO: Campos únicos...
+use plugse\server\core\app\validation\ValidationSchema;
+use plugse\server\core\app\validation\validations\IsRequired;
 
 abstract class AbstractController
 {
     protected AbstractUses $uses;
+    protected Entity $entity;
+    protected string $entityName;
+    protected ValidationSchema $schema;
+    protected Mapper $mapper;
 
     public function __construct()
     {
@@ -32,17 +25,17 @@ abstract class AbstractController
     }
 
     abstract protected function setUseCases();
-    abstract protected function getEntity(array $body, bool $isUpdate=false): Entity;
-    abstract protected function getMapper(Entity $entity): array;
 
     public function index(Request $request): Response
     {
-        Validations::isRequired($request->params, 'query');
-        
+        IsRequired::make($request->params, 'query')->validate();
+
         $found = $this->uses->findManyByQuery($request->params['query']);
+
         $response = [];
-        foreach ($found as $entity){
-            $mapper = $this->getMapper($entity);
+        foreach ($found as $entity) {
+            $this->entity = $entity;
+            $mapper = $this->getMapper();
             array_push($response, $mapper);
         }
 
@@ -51,32 +44,38 @@ abstract class AbstractController
 
     public function show(Request $request): Response
     {
-        Validations::isRequired($request->params, 'id');
+        IsRequired::make($request->params, 'id')->validate();
 
-        $entity = $this->uses->findOneById($request->params['id']);
-        $response = $this->getMapper($entity);
-        
+        $this->entity = $this->uses->findOneById($request->params['id']);
+        $response = $this->getMapper();
+
         return new Response($response);
     }
 
     public function create(Request $request): Response
     {
-        $entity = $this->getEntity($request->body);
-        Validations::validate($entity);
-        
-        $response = $this->uses->create($entity);
+        $this->setEntity($request->body);
+        $this->validate($this->entity->getAttributes());
+
+        $response = $this->uses->create($this->entity);
+        $this->entity = $response;
 
         return new Response(
-            $this->getMapper($response), 201
+            $this->getMapper($response),
+            201
         );
     }
 
     public function update(Request $request): Response
     {
-        Validations::isRequired($request->params, 'id');
+        IsRequired::make($request->params, 'id')->validate();
 
-        $entity = $this->getEntity($request->body);
-        $response = $this->uses->update($request->params['id'], $entity);
+        $this->setEntityStored($request->params['id'], $request->body);
+        $this->validate($this->entity->getAttributes());
+
+        $response = $this->uses->update($request->params['id'], $this->entity);
+        $this->entity = $response;
+
         return new Response(
             $this->getMapper($response)
         );
@@ -84,7 +83,9 @@ abstract class AbstractController
 
     public function delete(Request $request): Response
     {
+        IsRequired::make($request->params, 'id')->validate();
         http_response_code(404);
+
         throw new Exception('Função não implementada');
     }
 
@@ -96,5 +97,54 @@ abstract class AbstractController
     protected function getNow()
     {
         return date('Y-m-d H:i:s');
+    }
+
+    protected function setTimestamp()
+    {
+        $this->entity->createdAt = $this->getNow();
+    }
+
+    protected function setUser()
+    {
+        $this->entity->createdBy = $this->getAuthUserId();
+        $this->entity->updatedBy = $this->getAuthUserId();
+    }
+
+    protected function validate(array $body): void
+    {
+        $validation = $this->entity->getValidation($body);
+        foreach ($validation as $schemas) {
+            foreach ($schemas as $schema) {
+                $schema->validate();
+            }
+        }
+    }
+
+    protected function setEntity(array $body): void
+    {
+        $this->entity = new $this->entityName();
+        foreach ($body as $key => $value) {
+            $this->entity->$key = $value;
+        }
+
+        $this->setTimestamp();
+        $this->setUser();
+    }
+
+    protected function setEntityStored(int $id, array $body = []): void
+    {
+        $this->entity = $this->uses->findOneById($id);
+
+        foreach ($body as $key => $value) {
+            $this->entity->$key = $value;
+        }
+    }
+
+    protected function getMapper(): array
+    {
+        $mapperName = $this->entity->getMapper();
+        $this->mapper = new $mapperName($this->entity);
+
+        return $this->mapper->__serialize();
     }
 }

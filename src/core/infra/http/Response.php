@@ -4,9 +4,9 @@ namespace plugse\server\core\infra\http;
 
 class Response
 {
-    private mixed $value;
+    private $value;
 
-    public function __construct(mixed $value, int $statusCode=200)
+    public function __construct($value, int $statusCode = 200)
     {
         $this->value = $value;
         http_response_code($statusCode);
@@ -14,6 +14,6 @@ class Response
 
     public function get()
     {
-        return is_string($this->value)? ['message'=>$this->value]: $this->value;
+        return is_string($this->value) ? ['message' => $this->value] : $this->value;
     }
 }

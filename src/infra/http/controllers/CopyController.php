@@ -2,47 +2,46 @@
 
 namespace plugse\server\infra\http\controllers;
 
-use plugse\server\app\entities\Copy;
-use plugse\server\app\mappers\CopyMapper;
 use plugse\server\app\uses\CopyUses;
-use plugse\server\core\app\entities\Entity;
-use plugse\server\core\app\validation\Validations;
-use plugse\server\core\infra\http\controllers\AbstractController;
+use plugse\server\app\mappers\CopyMapper;
+use plugse\server\core\app\validation\validations\IsRequired;
 use plugse\server\infra\database\mysql\CopyModel;
+use plugse\server\core\infra\http\controllers\AbstractController;
+use plugse\server\core\infra\http\Request;
+use plugse\server\core\infra\http\Response;
 
 class CopyController extends AbstractController
 {
+    public function findOneByCode(Request $request): Response
+    {
+        IsRequired::make($request->params, 'code');
+        $code = substr($request->params['code'], 0, 3) . '.' . substr($request->params['code'], 3, 4) . '.' . substr($request->params['code'], 7);
+
+        $this->entity = $this->uses->findOneByRegistrationCode($code);
+        $response = $this->getMapper();
+
+        return new Response($response);
+    }
     protected function setUseCases()
     {
-        $model = new CopyModel;
+        $model = new CopyModel();
+        $this->entityName = $model->getEntity();
         $this->uses = new CopyUses($model);
     }
 
-    protected function getEntity(array $body, bool $isUpdate = false): Entity
+    protected function getMapper(): array
     {
-        $entity = new Copy(Validations::getValidations('copy'));   
+        $mapper = new CopyMapper($this->entity);
 
-        if(!$isUpdate){
-            $entity->createdAt = $this->getNow();
-            $entity->createdBy = $this->getAuthUserId();
-        }
-        $entity->updatedBy = $this->getAuthUserId();
-        
-        $year = date('Y', strtotime($entity->createdAt));
-        $count = (new CopyModel)->count('createdAt LIKE :year', ['year' => "{$year}-%"]);
-        $entity->registrationCode = "bib.{$year}." . $count + 1;
-        if(key_exists('publicationId', $body)) {
-            $entity->publicationId = $body['publicationId'];
+        if ($this->entity->has('publication')) {
+            $mapper->setPublication($this->entity->publication);
         }
 
-        return $entity;
-    }
-
-    protected function getMapper(Entity $entity): array
-    {
-        $mapper = new CopyMapper($entity);
-        if ($entity->has('publication')) {
-            $mapper->setPublication($entity->publication);
+        if (is_object($this->entity->createdBy)) {
+            $mapper->setCreator($this->entity->createdBy);
+        }
+        if (is_object($this->entity->updatedBy)) {
+            $mapper->setUpdator($this->entity->updatedBy);
         }
 
         return $mapper->__serialize();

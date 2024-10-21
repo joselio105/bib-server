@@ -1,4 +1,4 @@
-CREATE TABLE `pib-lib`.`copy` (
+CREATE TABLE `copy` (
     `id` INT NOT NULL AUTO_INCREMENT , 
     `publicationId` INT NOT NULL , 
     `registrationCode` VARCHAR(15) NOT NULL , 

@@ -3,11 +3,8 @@
 namespace plugse\server\infra\http\controllers;
 
 use plugse\server\infra\traits\CutterCode;
-use plugse\server\app\entities\Publication;
 use plugse\server\app\uses\PublicationUses;
-use plugse\server\core\app\entities\Entity;
 use plugse\server\app\mappers\PublicationMapper;
-use plugse\server\core\app\validation\Validations;
 use plugse\server\infra\database\mysql\PublicationsModel;
 use plugse\server\core\infra\http\controllers\AbstractController;
 
@@ -17,34 +14,32 @@ class PublicationsController extends AbstractController
 
     protected function setUseCases()
     {
-        $model = new PublicationsModel;
+        $model = new PublicationsModel();
+        $this->entityName = $model->getEntity();
         $this->uses = new PublicationUses($model);
     }
 
-    protected function getEntity(array $body, bool $isUpdate=false): Entity
+    protected function setEntity(array $body): void
     {
-        $entity = new Publication(Validations::getValidations('Publication'));
+        parent::setEntity($body);
 
-        foreach ($body as $key => $value) {
-            $entity->$key = $value;
-        }
-
-        $entity->authorCode = $this->getCutterCode($entity);
-        if(!$isUpdate){
-            $entity->createdAt = $this->getNow();
-            $entity->createdBy = $this->getAuthUserId();
-        }
-        $entity->updatedBy = $this->getAuthUserId();
-
-        return $entity;
+        $this->entity->authorCode = $this->getCutterCode($this->entity);
     }
 
-    protected function getMapper(Entity $entity): array
+    protected function setEntityStored(int $id, array $body = []): void
     {
-        $mapper = new PublicationMapper($entity);
+        parent::setEntityStored($id, $body);
+        $this->entity->unset('copyList');
 
-        if($entity->has('copies')) {
-            $mapper->setCopies($entity->copies);
+        $this->entity->authorCode = $this->getCutterCode($this->entity);
+    }
+
+    protected function getMapper(): array
+    {
+        $mapper = new PublicationMapper($this->entity);
+
+        if ($this->entity->has('copyList')) {
+            $mapper->setCopies($this->entity->copyList);
         }
 
         return $mapper->__serialize();
